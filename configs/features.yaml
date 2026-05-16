@@ -1,0 +1,43 @@
+# Which feature columns each modality contributes to the final tensor.
+# Keeping these here (rather than hard-coded) makes ablations easier:
+# you can drop a modality just by emptying its list and re-running.
+
+wearable:
+  - sleep_duration
+  - sleep_efficiency
+  - sleep_regularity_index
+  - hrv_dev_from_baseline
+  - rhr_dev_from_baseline
+  - stress_burden_7d
+
+smartphone:
+  - screen_time_z
+  - unlock_freq_z
+  - mobility_radius_km
+  - location_entropy
+  - behavioral_regularity
+
+climate:
+  - temperature_c
+  - heat_index
+  - aqi
+  - humid_heat_index
+  - nighttime_heat_stress
+
+missingness:
+  - any_missing
+  - consecutive_missing_days
+  - missingness_rate_7d
+  - modality_dropout_entropy
+
+baseline:
+  - age_z
+  - chronotype_score
+  - baseline_hrv
+  - baseline_sleep_need
+
+targets:
+  low_mood: survey_mood              # binarized at < 4 (1-7 scale)
+  high_stress: survey_stress         # binarized at > 5
+  sleep_disruption: sleep_efficiency # binarized at < 0.80
+  climate_vulnerable: heat_index     # binarized at > 32C with low HRV

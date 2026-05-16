@@ -1,0 +1,25 @@
+# Core scientific stack
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+scipy>=1.10
+matplotlib>=3.7
+
+# Deep learning
+torch>=2.0
+
+# Config + validation
+pyyaml>=6.0
+pydantic>=2.0
+
+# Serving + UI
+fastapi>=0.104
+uvicorn[standard]>=0.24
+streamlit>=1.28
+
+# Dev / test
+pytest>=7.4
+pytest-cov>=4.1
+
+# Optional. We try/except around it in the eval code so it's fine if missing.
+# xgboost>=1.7

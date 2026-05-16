@@ -1,0 +1,38 @@
+# Run `pre-commit install` after cloning so these run on every commit.
+# Tests and the smoke-train are CI-only; pre-commit just keeps the working
+# tree tidy.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        # We type-check the engineering core but not the notebooks or
+        # the dashboard, where Streamlit's dynamic API doesn't play nicely
+        # with strict static typing.
+        files: '^src/lhfm/(?!dashboard/).*\.py$'
+        additional_dependencies:
+          - numpy>=1.26
+          - pandas-stubs
+          - types-PyYAML
+        args: ["--ignore-missing-imports", "--warn-unused-ignores"]

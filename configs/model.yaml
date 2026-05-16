@@ -1,0 +1,33 @@
+# Architecture knobs for the MultimodalLongitudinalEncoder and downstream heads.
+
+encoder:
+  d_model: 128
+  n_heads: 4
+  n_layers: 3
+  dropout: 0.1
+  ff_dim: 256
+  max_seq_len: 90
+  use_participant_embedding: true
+  participant_embedding_dim: 16
+  # Each modality is projected independently before being concatenated/added.
+  modality_dims:
+    wearable: 6
+    smartphone: 5
+    climate: 5
+    baseline: 4
+
+ssl:
+  mask_ratio: 0.20
+  recon_weight: 1.0
+  nextday_weight: 0.5
+  contrastive_weight: 0.25
+  contrastive_temperature: 0.1
+
+downstream:
+  hidden_dim: 64
+  dropout: 0.2
+  tasks:
+    - low_mood
+    - high_stress
+    - sleep_disruption
+    - climate_vulnerable

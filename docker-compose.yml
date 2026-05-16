@@ -1,0 +1,38 @@
+services:
+  api:
+    build: .
+    container_name: lhfm-api
+    command: uvicorn lhfm.api.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./results:/app/results
+    environment:
+      - LHFM_CHECKPOINT=/app/checkpoints/downstream.pt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    container_name: lhfm-dashboard
+    command: streamlit run src/lhfm/dashboard/app.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./results:/app/results
+    depends_on:
+      api:
+        # Wait for the API health check to go green before starting the
+        # dashboard. Without this the dashboard might briefly come up and
+        # crash on its first /predict call.
+        condition: service_healthy
+    restart: unless-stopped

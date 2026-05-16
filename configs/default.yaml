@@ -1,0 +1,39 @@
+# Default configuration for the longitudinal-health-foundation-model pipeline.
+# Anything here can be overridden on the command line or by environment variables.
+
+project:
+  name: longitudinal-health-foundation-model
+  seed: 42
+
+paths:
+  raw_dir: data/raw
+  synthetic_dir: data/synthetic
+  processed_dir: data/processed
+  checkpoint_dir: checkpoints
+  results_dir: results
+
+data:
+  n_participants: 250
+  n_days: 90
+  # Probabilities for the missing-data simulator. Real-world wearable studies
+  # show ~10-20% wearable missingness and somewhat higher for surveys.
+  base_missing_wearable: 0.12
+  base_missing_phone: 0.05
+  base_missing_survey: 0.25
+
+training:
+  device: auto         # "auto", "cpu", or "cuda"
+  batch_size: 32
+  num_workers: 0
+  ssl_epochs: 15
+  downstream_epochs: 25
+  early_stopping_patience: 5
+  lr: 0.0005
+  weight_decay: 0.00001
+  val_fraction: 0.15
+  test_fraction: 0.15
+  window_days: 14      # length of the sliding window the encoder consumes
+
+logging:
+  level: INFO
+  fmt: "%(asctime)s | %(levelname)s | %(name)s | %(message)s"

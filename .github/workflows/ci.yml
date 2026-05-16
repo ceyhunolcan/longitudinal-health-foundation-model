@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Stop redundant runs when a PR is updated.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: tests (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install the CPU-only torch wheel; saves ~2 GB and ~3 min vs. the GPU one.
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          # Editable install so `import lhfm` resolves on PYTHONPATH.
+          pip install -e .
+
+      - name: Sanity-check imports
+        run: |
+          python -c "import lhfm; from lhfm.data.synthetic_generator import generate_synthetic_cohort; print('imports ok')"
+
+      - name: Generate small synthetic dataset
+        run: |
+          python scripts/run_pipeline.py --participants 30 --days 45 --seed 7 --no-parquet
+
+      - name: Run tests with coverage
+        run: |
+          pytest --maxfail=3 --cov=lhfm --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage XML
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python }}
+          path: coverage.xml
+          if-no-files-found: ignore
+
+  smoke-train:
+    name: end-to-end smoke train
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+          pip install -e .
+      - name: Tiny end-to-end run
+        # Train for 1 SSL epoch + 1 downstream epoch on a 30-participant cohort.
+        # If this passes we know the whole pipeline wires together.
+        run: |
+          python scripts/run_pipeline.py --participants 30 --days 45 --seed 7 --no-parquet
+          python scripts/train_model.py --ssl-epochs 1 --downstream-epochs 1 --no-baselines
+
+  lint:
+    name: lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install ruff
+      - run: ruff check src/lhfm tests scripts

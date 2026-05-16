@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+.Python
+.venv/
+venv/
+env/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Data: keep folder structure, ignore everything inside.
+# Real cohorts (GLOBEM, LifeSnaps, pilot data) live under data/raw/ and
+# data/processed/ -- their DUAs forbid redistribution, so they MUST stay
+# out of git. Synthetic regenerates from seeds, so no point committing it.
+data/raw/*
+data/processed/*
+data/synthetic/*
+data/cache/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/synthetic/.gitkeep
+
+# Model checkpoints. Trained-from-real-data weights inherit the source
+# DUA -- treat them like data and keep them out of git. A separate
+# private GitHub repo or institutional storage is the right home.
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Results derived from real data. Aggregate metrics CSVs are usually OK
+# to share (n_participants is the only PII risk) but individual-level
+# arrays (y_true / y_prob lists) inside metrics_test.json could in
+# principle be a re-identification vector. Default to ignoring.
+results/figures/*.png
+results/tables/*.csv
+results/tables/*.json
+
+# Logs (may contain participant ids in stack traces)
+*.log
+logs/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Credentials -- never, ever commit these
+.kaggle/
+.physionet/
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Editor swap / autosave
+*~
+*.bak
+.#*
+\#*\#
+
+# OS noise
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+

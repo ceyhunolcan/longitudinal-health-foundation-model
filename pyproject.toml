@@ -1,0 +1,140 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "longitudinal-health-foundation-model"
+dynamic = ["version"]
+description = "Self-supervised multimodal modeling of wearable, smartphone, and environmental signals for personalized behavioral health risk prediction."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Ceyhun Olcan" }]
+keywords = [
+    "digital health",
+    "wearables",
+    "passive sensing",
+    "self-supervised learning",
+    "foundation models",
+    "computational psychiatry",
+    "climate and health",
+    "fairness auditing",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Intended Audience :: Science/Research",
+    "Development Status :: 3 - Alpha",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "pre-commit>=3.8",
+]
+
+[project.scripts]
+# `lhfm <subcommand>` from the shell once the package is installed.
+lhfm = "lhfm.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["lhfm*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "lhfm.__version__" }
+
+# ----------------------------------------------------------------------------
+# pytest
+# ----------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers --strict-config"
+filterwarnings = [
+    "ignore::DeprecationWarning:torch.*",
+    "ignore::UserWarning:torch.nn.functional",
+]
+markers = [
+    "slow: tests that take more than a few seconds (deselect with -m 'not slow')",
+    "integration: end-to-end pipeline tests",
+]
+
+# ----------------------------------------------------------------------------
+# ruff: lint + format
+# ----------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["notebooks", "data", "results", "checkpoints"]
+
+[tool.ruff.lint]
+# Default ruff set plus a few high-signal pickups. We deliberately *don't*
+# enable D (docstrings) repo-wide -- enforcing one-liners on every internal
+# helper is more noise than signal.
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "B",     # bugbear (mutable defaults, etc.)
+    "UP",    # pyupgrade
+    "C4",    # comprehensions
+    "SIM",   # simplifications
+    "RUF",   # ruff-specific rules
+]
+ignore = [
+    "E501",  # line length: ruff format already enforces a soft limit
+    "B008",  # function calls in default args (FastAPI uses this idiomatically)
+    "SIM108",  # ternary suggestions where the if/else reads more clearly
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011", "RUF012"]
+"scripts/*" = ["E402"]   # we sys.path.insert before importing on purpose
+"src/lhfm/dashboard/*" = ["E402"]   # streamlit run prepends to sys.path
+"notebooks/*" = ["E402", "F401", "F811"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ----------------------------------------------------------------------------
+# mypy
+# ----------------------------------------------------------------------------
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = false   # turn on when type coverage is full
+exclude = ["build", "dist", "notebooks", "data", "results"]
+
+[[tool.mypy.overrides]]
+module = ["lhfm.dashboard.*"]
+ignore_errors = true   # streamlit's dynamic API doesn't play nicely with mypy
+
+# ----------------------------------------------------------------------------
+# coverage
+# ----------------------------------------------------------------------------
+
+[tool.coverage.run]
+source = ["src/lhfm"]
+omit = ["src/lhfm/dashboard/*", "src/lhfm/api/main.py"]   # exercised by integration tests only
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]

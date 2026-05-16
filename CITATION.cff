@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: "longitudinal-health-foundation-model (LHFM)"
+message: >-
+  If you use this software in your research, please cite it using the
+  metadata below. LHFM is a research prototype: the public release is
+  trained on synthetic data only and is not a medical device.
+type: software
+authors:
+  - family-names: "Olcan"
+    given-names: "Ceyhun"
+    # Replace with your ORCID once you have one, e.g.:
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+repository-code: "https://github.com/ceyhunolcan/longitudinal-health-foundation-model"
+abstract: >-
+  Self-supervised multimodal foundation model over wearable, smartphone, and
+  environmental signals for personalized behavioral-health risk prediction.
+  Research prototype with a synthetic-data pipeline plus adapters for the
+  GLOBEM (PhysioNet) and LifeSnaps (Zenodo/Kaggle) public cohorts. Includes
+  integrated-gradients interpretability, participant-clustered bootstrap
+  CIs, a subgroup-stratified fairness audit, and a climate-regime
+  generalization eval. Not a medical device.
+keywords:
+  - foundation model
+  - self-supervised learning
+  - digital health
+  - wearable sensors
+  - passive sensing
+  - climate health
+  - computational psychiatry
+  - fairness auditing
+license: MIT
+version: "0.2.0"
+date-released: "2026-05-15"

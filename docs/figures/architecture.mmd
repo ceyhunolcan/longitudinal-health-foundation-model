@@ -1,0 +1,91 @@
+%%{init: {'theme':'neutral', 'flowchart': {'curve': 'basis', 'nodeSpacing': 40, 'rankSpacing': 50}}}%%
+flowchart TB
+    subgraph SRC ["data sources"]
+        SYNTH["<b>synthetic</b><br/>generator"]
+        LS["<b>LifeSnaps</b><br/>Kaggle / Zenodo"]
+        GLOBEM["<b>GLOBEM</b><br/>PhysioNet"]
+    end
+
+    SRC -->|adapter layer| LONG
+
+    LONG["<b>long-form dataframe</b><br/>participant × day × modality"]
+
+    LONG --> FE
+
+    subgraph FE ["feature engineering"]
+        direction LR
+        WF["wearable<br/>features"]
+        SF["smartphone<br/>features"]
+        CF["climate<br/>features"]
+        MF["missingness<br/>features"]
+        BF["baseline<br/>features"]
+    end
+
+    FE --> FEATS
+
+    FEATS["<b>engineered features</b><br/>64-column daily panel"]
+
+    FEATS --> PROJ
+    FEATS --> MASK
+
+    subgraph PROJ ["per-modality projectors"]
+        direction LR
+        PW["wearable MLP"]
+        PS["smartphone MLP"]
+        PC["climate MLP"]
+    end
+
+    MASK["missingness<br/>mask embedding"]
+
+    PROJ --> SUM
+    MASK --> SUM
+    PARTID["participant<br/>embedding<br/><i>(optional)</i>"] --> SUM
+
+    SUM["sum + LayerNorm"]
+    SUM --> POSENC
+
+    POSENC["sinusoidal pos enc<br/>+ Transformer (3 × 4 heads)<br/>mask-aware attention"]
+
+    POSENC --> POOL
+
+    POOL["attention-pool over T"]
+
+    POOL --> SSL
+    POOL --> DOWN
+
+    subgraph SSL ["self-supervised heads"]
+        direction LR
+        REC["masked<br/>reconstruction"]
+        NXT["next-day<br/>prediction"]
+        CON["contrastive<br/>(person vs day)"]
+    end
+
+    subgraph DOWN ["downstream heads"]
+        direction LR
+        T1["low<br/>mood"]
+        T2["high<br/>stress"]
+        T3["sleep<br/>disruption"]
+        T4["climate<br/>vulnerable"]
+    end
+
+    DOWN --> AUDIT
+
+    subgraph AUDIT ["evaluation"]
+        direction LR
+        BOOT["participant-clustered<br/>bootstrap CI"]
+        FAIR["subgroup<br/>fairness audit"]
+        CLIM["climate-regime<br/>holdout"]
+        IG["integrated-gradients<br/>interpretability"]
+    end
+
+    classDef src fill:#e3f2fd,stroke:#1976d2,stroke-width:1px
+    classDef feat fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+    classDef enc fill:#fff3e0,stroke:#e65100,stroke-width:1px
+    classDef head fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
+    classDef eval fill:#fce4ec,stroke:#c2185b,stroke-width:1px
+
+    class SYNTH,LS,GLOBEM,LONG src
+    class WF,SF,CF,MF,BF,FEATS feat
+    class PW,PS,PC,MASK,SUM,POSENC,POOL,PARTID enc
+    class REC,NXT,CON,T1,T2,T3,T4 head
+    class BOOT,FAIR,CLIM,IG eval
