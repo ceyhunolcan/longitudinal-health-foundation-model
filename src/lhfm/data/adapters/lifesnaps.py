@@ -103,14 +103,12 @@ class LifeSnapsAdapter(BaseAdapter):
             "rmssd": "hrv_rmssd",
             "resting_hr": "resting_hr",
             "steps": "daily_steps",
-            "sleep_duration": "sleep_duration",        # we normalise units below
-            "sleep_efficiency": "sleep_efficiency",    # ditto
+            "sleep_duration": "sleep_duration",
+            "sleep_efficiency": "sleep_efficiency",
             "stress_score": "stress_score",
-            # EMA fields (folded into daily here; SEMA file has the
-            # higher-resolution version)
-            "mood": "survey_mood",
-            "alert": "survey_energy",
-            "stressed_lf": "survey_stress",
+            # Demographics live in the daily CSV (RAIS/Zenodo layout)
+            "age": "age",
+            "gender": "sex",
         }
         present = {k: v for k, v in col_map.items() if k in daily.columns}
         if not present:
@@ -119,7 +117,23 @@ class LifeSnapsAdapter(BaseAdapter):
                 f"Sample columns: {sorted(daily.columns)[:15]} ... "
                 f"Did Kaggle change the column names?"
             )
-        df = daily.rename(columns=present)[list(present.values())]
+        df = daily.rename(columns=present)[list(present.values())].copy()
+
+        # LifeSnaps stores SEMA EMA as one-hot per emotion (HAPPY, SAD, TIRED,
+        # ALERT, "TENSE/ANXIOUS", "RESTED/RELAXED", NEUTRAL). Collapse to a
+        # single 1-7 valence/energy/stress score, NaN if no emotion reported.
+        def _sema_col(name):
+            return pd.to_numeric(daily.get(name, 0), errors="coerce").fillna(0)
+
+        happy  = _sema_col("HAPPY");          sad    = _sema_col("SAD")
+        tired  = _sema_col("TIRED");          alert  = _sema_col("ALERT")
+        tense  = _sema_col("TENSE/ANXIOUS");  rested = _sema_col("RESTED/RELAXED")
+        neutral = _sema_col("NEUTRAL")
+
+        any_emotion = (happy + sad + tired + alert + tense + rested + neutral) > 0
+        df["survey_mood"]   = (4 + 1.5 * (happy - sad)).where(any_emotion, np.nan).clip(1, 7).values
+        df["survey_energy"] = (4 + 1.5 * (alert - tired)).where(any_emotion, np.nan).clip(1, 7).values
+        df["survey_stress"] = (4 + 2.0 * tense - 1.0 * rested).where(any_emotion, np.nan).clip(1, 7).values
 
         # Normalise units --------------------------------------------------
         # Sleep duration in LifeSnaps is in minutes; LHFM wants hours.
@@ -138,7 +152,7 @@ class LifeSnapsAdapter(BaseAdapter):
             if se.dropna().median() > 1.5:    # clearly on a 0-100 scale
                 df["sleep_efficiency"] = se / 100.0
 
-        # EMA scales: LifeSnaps SEMA app uses a 1-5 Likert for mood
+
         # ("Very sad" .. "Very happy"). LHFM downstream code assumes 1-7.
         # Linear rescale 1..5 -> 1..7 so the binarisation thresholds in
         # binarize_targets still hit the right populations.
@@ -150,18 +164,18 @@ class LifeSnapsAdapter(BaseAdapter):
                 else:
                     df[col] = s
 
-        # Demographics from surveys.csv -----------------------------------
-        if survey_path.exists():
-            log.info("[lifesnaps] joining demographics from %s", survey_path.name)
-            sv = pd.read_csv(survey_path)
-            keep = [c for c in ("id", "age", "gender", "country", "timezone") if c in sv.columns]
-            sv = sv[keep].drop_duplicates("id")
-            sv = sv.rename(columns={"id": "participant_id", "gender": "sex"})
-            if "sex" in sv:
-                sv["sex"] = sv["sex"].astype(str).str.upper().str[0].replace({"O": "X"})
-            df = df.merge(sv, on="participant_id", how="left")
-        else:
-            log.warning("[lifesnaps] %s missing; demographics will be NaN", survey_path.name)
+        # Coerce demographics to numeric. LifeSnaps stores age as a range
+        # string like "<30", "30-40", "40-45"; we take the lower-bound integer.
+        if "age" in df.columns:
+            ages = df["age"].astype(str).str.extract(r"(\d+)", expand=False)
+            df["age"] = pd.to_numeric(ages, errors="coerce")
+        if "bmi" in df.columns:
+            df["bmi"] = pd.to_numeric(df["bmi"], errors="coerce")
+
+        # Demographics are sourced from the daily CSV directly (above).
+        # Normalise sex codes (LifeSnaps uses "MALE"/"FEMALE"/"NB"/"NA"/...).
+        if "sex" in df.columns:
+            df["sex"] = df["sex"].astype(str).str.upper().str[0].replace({"O": "X", "N": "X"})
 
         # Lat/lon from timezone (best we can do; LifeSnaps doesn't release
         # coordinates). Two-step: try the participant's timezone, else
