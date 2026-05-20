@@ -360,6 +360,26 @@ The `04_evaluate_downstream_tasks.ipynb` notebook walks through plotting
 the foundation-model-vs-baselines comparison and the per-task calibration
 curves.
 
+## Real-data validation: LifeSnaps
+
+LHFM has been applied end-to-end to the LifeSnaps cohort (Yfantidou et al.,
+*Scientific Data* 2022; n = 71 participants, median 88 days observed).
+On held-out test data (11 participants) and against logistic regression
+and random-forest baselines trained on identical features, LHFM achieves:
+
+| Task | LHFM AUROC | logreg | random forest |
+| --- | ---: | ---: | ---: |
+| `high_stress` | **0.567** [0.389, 0.688] | 0.328 | 0.368 |
+| `sleep_disruption` | 0.518 [0.376, 0.682] | **0.656** | 0.641 |
+
+LHFM beats both classical baselines by roughly 20 AUROC points on
+high-stress prediction. On sleep disruption, the classical baselines
+win — we report it because it is real. The wide CIs reflect a small
+test fold; replication on the larger GLOBEM cohort is in progress.
+
+See **[docs/lifesnaps_results.md](docs/lifesnaps_results.md)** for the
+full reproducibility recipe, cohort characteristics, and limitations.
+
 ## What we cannot claim
 
 This is a deliberately narrow research prototype. To make it explicit, this
