@@ -95,6 +95,12 @@ def parse_args() -> argparse.Namespace:
               "predict mood from passive sensing alone."),
     )
     p.add_argument(
+        "--tasks", type=str, nargs="+", default=None,
+        help="restrict downstream training to these tasks (default: all from "
+             "config). Useful on cohorts where some tasks have zero positives "
+             "(e.g. low_mood on Fitbit-only LifeSnaps).",
+    )
+    p.add_argument(
         "--run-tag", type=str, default=None,
         help="optional tag appended to checkpoint filenames (helps when "
              "comparing hyperparameter sweeps in the same checkpoints/ dir)",
@@ -234,6 +240,14 @@ def main() -> int:
         )
 
     task_names = cfg["downstream"]["tasks"]
+    if args.tasks:
+        unknown = [t for t in args.tasks if t not in task_names]
+        if unknown:
+            raise SystemExit(
+                f"--tasks: unknown task(s) {unknown}; available: {task_names}"
+            )
+        task_names = list(args.tasks)
+        log.info("--tasks override: training only %s", task_names)
 
     # --- windowing: compute X *once*, then slice labels per task. The prior
     #     implementation re-ran build_windows K times wastefully -----------
@@ -415,6 +429,17 @@ def main() -> int:
     # --- evaluation -------------------------------------------------------
     results_dir = Path(cfg["paths"]["results_dir"]) / "tables"
     results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Reload the best checkpoint (selected by primary-task val AUROC during
+    # training) before evaluating on test. Otherwise we'd score the final
+    # epoch's weights, which may be after the best generalisation point.
+    if ckpt_path is not None and ckpt_path.exists():
+        try:
+            import torch
+            state.model.load_state_dict(torch.load(ckpt_path, map_location=device, weights_only=False))
+            log.info("reloaded best checkpoint from %s for test eval", ckpt_path)
+        except Exception as exc:
+            log.warning("could not reload best checkpoint (%s); using final-epoch weights", exc)
 
     log.info("evaluating on test split")
     test_results = evaluate_downstream(

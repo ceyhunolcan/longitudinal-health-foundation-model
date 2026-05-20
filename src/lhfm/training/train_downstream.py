@@ -132,7 +132,12 @@ def train_downstream(
     val_losses: list[float] = []
     val_metrics: list[dict] = []
 
-    best_val = float("inf")
+    # Track the primary task's val AUROC (higher = better), not the
+    # aggregate val_loss, because heads with no positives in training (e.g.
+    # low_mood on Fitbit-only cohorts) produce uselessly-low losses that
+    # dominate the aggregate and trigger spurious early stopping.
+    primary_task = task_names[0] if task_names else None
+    best_score = float("-inf")
     patience = 0
 
     for epoch in range(epochs):
@@ -183,16 +188,20 @@ def train_downstream(
                      for k, v in metric_summary.items()),
         )
 
-        track = val_loss if val_loader is not None else train_loss
-        if track < best_val - 1e-6:
-            best_val = track
+        # Score = primary task's val AUROC. NaN (e.g. all-zero labels in val
+        # fold) is treated as -inf so it never wins.
+        primary_auroc = metric_summary.get(primary_task, {}).get("auroc", float("nan")) if primary_task else float("nan")
+        track = primary_auroc if primary_auroc == primary_auroc else float("-inf")  # NaN-safe
+        if track > best_score + 1e-6:
+            best_score = track
             patience = 0
             if checkpoint_path is not None:
                 _save_checkpoint(model, checkpoint_path)
         else:
             patience += 1
             if patience >= early_stopping_patience:
-                log.info("early stopping at epoch %d", epoch + 1)
+                log.info("early stopping at epoch %d (best %s val AUROC=%.3f)",
+                         epoch + 1, primary_task, best_score)
                 break
 
     return DownstreamTrainState(

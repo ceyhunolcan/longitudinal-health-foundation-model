@@ -191,11 +191,20 @@ def binarize_targets(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
 
-    # Low mood: EMA scale 1-7, treat <= 3 as a "bad day".
-    df["target_low_mood"] = (df["survey_mood"] <= 3).astype(int)
+    # Low mood: EMA scale 1-7, treat <= 3 as a "bad day".  On Fitbit-only
+    # cohorts like LifeSnaps the SEMA "SAD" checkbox is so rarely reported
+    # (<3% of EMA days) that this target collapses to zero positives. NaN it
+    # out when survey_mood was imputed from a no-emotion-reported day to
+    # avoid spurious zero-class evaluation, and let downstream loss-masking
+    # drop the task on this cohort.
+    df["target_low_mood"] = (df["survey_mood"] <= 3).astype(float)
+    df.loc[df["survey_mood"].isna(), "target_low_mood"] = float("nan")
 
-    # High stress: EMA scale 1-7, treat >= 5 as a high-stress day.
-    df["target_high_stress"] = (df["survey_stress"] >= 5).astype(int)
+    # High stress: EMA scale 1-7, treat >= 4.5 as a high-stress day.
+    # Threshold lowered from 5.0 after observing LifeSnaps' SEMA TENSE/ANXIOUS
+    # reports cluster around 4.0 baseline + 2.0 when checked.
+    df["target_high_stress"] = (df["survey_stress"] >= 4.5).astype(float)
+    df.loc[df["survey_stress"].isna(), "target_high_stress"] = float("nan")
 
     # Sleep disruption: efficiency below 0.80 OR duration <= 5h.
     df["target_sleep_disruption"] = (

@@ -136,14 +136,19 @@ class LifeSnapsAdapter(BaseAdapter):
         df["survey_stress"] = (4 + 2.0 * tense - 1.0 * rested).where(any_emotion, np.nan).clip(1, 7).values
 
         # Normalise units --------------------------------------------------
-        # Sleep duration in LifeSnaps is in minutes; LHFM wants hours.
+        # Sleep duration in LifeSnaps varies by release: the RAIS/Zenodo daily
+        # CSV stores it in milliseconds; older Kaggle exports use minutes;
+        # some preprocessed mirrors already give hours. Detect by median.
         if "sleep_duration" in df:
             sd = pd.to_numeric(df["sleep_duration"], errors="coerce")
-            # Heuristic: if median > 30 it's clearly minutes; otherwise it's
-            # already in hours (some preprocessed versions on Kaggle differ).
-            if sd.dropna().median() > 30:
+            med = sd.dropna().median()
+            if med > 100_000:        # milliseconds (median ~441000 in RAIS)
+                df["sleep_duration"] = sd / (1000.0 * 60.0 * 60.0)
+            elif med > 1_000:        # seconds
+                df["sleep_duration"] = sd / 3600.0
+            elif med > 30:           # minutes
                 df["sleep_duration"] = sd / 60.0
-            else:
+            else:                    # already hours
                 df["sleep_duration"] = sd
 
         # Sleep efficiency: LifeSnaps gives 0-100 percent; LHFM wants 0-1.
