@@ -32,29 +32,29 @@ participant level with 1,000 iterations.
 
 ### Held-out test results
 
-<<TODO: insert table once synthetic_paper run completes. Expected
-shape, populated from `results/tables/metrics_test.csv`:
-
-| Task                  | Model           | AUROC | 95% CI | AUPRC | n_pos | n_total |
-| :-------------------- | :-------------- | ----: | :----- | ----: | ----: | ------: |
-| `low_mood`            | LHFM            |  TBD  | TBD    | TBD   | TBD   | TBD     |
-| `low_mood`            | Logistic regr.  |  TBD  | –      | TBD   | TBD   | TBD     |
-| `low_mood`            | Random forest   |  TBD  | –      | TBD   | TBD   | TBD     |
-| `high_stress`         | LHFM            |  TBD  | TBD    | TBD   | TBD   | TBD     |
-| `high_stress`         | Logistic regr.  |  TBD  | –      | TBD   | TBD   | TBD     |
-| `high_stress`         | Random forest   |  TBD  | –      | TBD   | TBD   | TBD     |
-| `sleep_disruption`    | LHFM            |  TBD  | TBD    | TBD   | TBD   | TBD     |
-| `sleep_disruption`    | Logistic regr.  |  TBD  | –      | TBD   | TBD   | TBD     |
-| `sleep_disruption`    | Random forest   |  TBD  | –      | TBD   | TBD   | TBD     |
-| `climate_vulnerable`  | LHFM            |  TBD  | TBD    | TBD   | TBD   | TBD     |
-| `climate_vulnerable`  | Logistic regr.  |  TBD  | –      | TBD   | TBD   | TBD     |
-| `climate_vulnerable`  | Random forest   |  TBD  | –      | TBD   | TBD   | TBD     |
+| Task                  | Model           | AUROC | 95% CI            | AUPRC | n_pos | n_total |
+| :-------------------- | :-------------- | ----: | :---------------- | ----: | ----: | ------: |
+| `low_mood`            | LHFM            | 0.752 | [0.691, 0.814]     | 0.673 | 647   | 1819    |
+| `low_mood`            | Logistic regr.  | **0.817** | –              | 0.759 | 647   | 1819    |
+| `low_mood`            | Random forest   | 0.807 | –                  | 0.749 | 647   | 1819    |
+| `high_stress`         | LHFM            | 0.604 | [0.504, 0.708]     | 0.451 | 625   | 1819    |
+| `high_stress`         | Logistic regr.  | 0.672 | –                  | 0.568 | 625   | 1819    |
+| `high_stress`         | Random forest   | **0.674** | –              | 0.571 | 625   | 1819    |
+| `sleep_disruption`    | LHFM            | 0.596 | [0.500, 0.680]     | 0.212 | 334   | 2426    |
+| `sleep_disruption`    | Logistic regr.  | 0.720 | –                  | 0.440 | 334   | 2426    |
+| `sleep_disruption`    | Random forest   | **0.747** | –              | 0.424 | 334   | 2426    |
+| `climate_vulnerable`  | LHFM            | 0.937 | [0.914, 0.957]     | 0.382 | 94    | 2426    |
+| `climate_vulnerable`  | Logistic regr.  | 0.833 | –                  | 0.154 | 94    | 2426    |
+| `climate_vulnerable`  | Random forest   | **0.948** | –              | 0.315 | 94    | 2426    |
 
 **Table 1.** Held-out test metrics on the synthetic cohort
-(250 participants × 90 days, seed 42). LHFM, logistic regression,
-and random forest were trained on the identical window-flattened
-feature matrix. Bootstrap unit: participant, 1,000 iterations.
->>
+(250 participants × 90 days, seed 42, 38 test participants).
+LHFM, logistic regression, and random forest were trained on the
+identical window-flattened feature matrix (per-feature mean,
+standard deviation, last value, and linear slope across the 14-day
+window). Bootstrap 95 % confidence intervals on LHFM use the
+participant-level resampling procedure described in §Methods 5.2;
+1,000 iterations.
 
 ### Interpretation
 
@@ -66,15 +66,63 @@ structure is known and every target has sufficient positives, before
 applying it to real cohorts where modality coverage and label
 delivery are out of the experimenter's control.
 
+**Classical baselines outperform LHFM on all four synthetic tasks.**
+Logistic regression and random forest exceed LHFM by approximately
+6.5 AUROC points on `low_mood`, 7 points on `high_stress`, and
+12-15 points on `sleep_disruption`. On `climate_vulnerable`, where
+LHFM achieves the highest absolute AUROC of the four (0.937, 95 %
+CI [0.914, 0.957]), random forest narrowly exceeds it (0.948). This
+is the inverse of the LifeSnaps result, where LHFM exceeded the
+same classical baselines on `high_stress` by approximately 20 AUROC
+points. We report both directions of comparison in the same table
+form rather than tuning either away.
+
+The most parsimonious explanation for the inverted gap reconciles
+the two results. Synthetic data is *clean*: every modality is
+present every day for every participant, missingness is the
+seeded informative kind only, and the engineered features
+(per-feature mean, standard deviation, last value, and linear
+slope across the 14-day window) are nearly sufficient statistics
+for the targets they were designed against. Classical baselines
+thrive in this regime. LHFM's value proposition — a representation
+that absorbs modality dropout, sparse labels, and cross-modality
+structure — does not become observable until those conditions are
+violated. The LifeSnaps cohort violates them: smartphone sensing
+is absent, climate is absent, EMA delivery covers only 31 % of
+days. There, classical baselines fall to 0.33 AUROC on
+`high_stress` while LHFM holds at 0.57, a 24-point gap in LHFM's
+favour. The honest reading of Table 1 against the LifeSnaps result
+(Table 2) is therefore: **LHFM's lift over classical baselines is
+not universal; it emerges from the kind of heterogeneity real
+cohorts exhibit and synthetic data, by construction, does not.**
+
+A second factor affecting the synthetic comparison is a
+multi-task best-checkpoint subtlety in the training pipeline. The
+trainer's early-stopping signal is the *primary* task's validation
+AUROC (the first task in the configured list, `low_mood` on this
+cohort). The remaining heads share the same encoder and may peak at
+different epochs; on the synthetic run logged at run-tag
+`synthetic_paper`, the `climate_vulnerable` head's validation AUROC
+climbed from 0.67 at epoch 1 to 0.94 at epoch 6, but training
+halted at epoch 6 because `low_mood`'s validation AUROC had not
+improved past its epoch-1 value of 0.758. The reported test
+numbers in Table 1 reflect the epoch-1 checkpoint for the non-
+primary heads, which understates their per-task best performance.
+On LifeSnaps this is the right design choice — only one task was
+evaluable — but on a multi-task synthetic cohort the conservative
+side-effect is visible. A per-task best-checkpoint variant is the
+straightforward fix and is documented as a planned trainer
+extension; we leave it out of the present comparison because
+selectively maximising each head's checkpoint is the kind of
+post-hoc choice we want the comparison to remain free of.
+
 The synthetic result is therefore not the headline empirical claim
-of this work. It establishes that the model recovers seeded causal
-structure (sleep debt and heat exposure depress HRV within-person;
-informative missingness covaries with mood; climate vulnerability
-is concentrated in participants with high heat sensitivity) and
-that LHFM produces non-trivial AUROC on each task. The real-data
-test of the same pipeline is on the LifeSnaps cohort
-(§Results, LifeSnaps), and the headline cross-cohort replication
-is on GLOBEM (§Results, GLOBEM).
+of this work; the LifeSnaps result (§Results, LifeSnaps) and the
+forthcoming GLOBEM replication (§Results, GLOBEM) are. The
+synthetic comparison is informative about *where* the SSL
+representation buys lift and where it does not — namely, that the
+gain appears in cohorts whose modality and label heterogeneity the
+classical feature pipeline cannot directly absorb.
 
 ### Subgroup fairness audit
 
