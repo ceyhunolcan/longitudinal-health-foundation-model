@@ -202,7 +202,7 @@ class BaseAdapter:
         # Two foot-guns we hit every time:
         # - participant_id arriving as int when downstream code groups by str
         # - date arriving as ISO string when downstream code wants datetime.date
-        df["participant_id"] = df["participant_id"].astype(str)
+        df["participant_id"] = df["participant_id"].astype(str).astype(object)
         try:
             df["date"] = pd.to_datetime(df["date"]).dt.date
         except Exception as exc:
@@ -269,9 +269,7 @@ def preflight_report(df: pd.DataFrame, min_days: int = 14) -> dict[str, Any]:
         "date_max": str(df["date"].max()) if "date" in df else None,
     }
     if "sex" in df:
-        report["sex_distribution"] = (
-            df.drop_duplicates("participant_id")["sex"].value_counts().to_dict()
-        )
+        report["sex_distribution"] = df["sex"].value_counts(dropna=False).to_dict() if "sex" in df.columns else {}
     if "age" in df:
         ages = df.drop_duplicates("participant_id")["age"].dropna()
         if len(ages):

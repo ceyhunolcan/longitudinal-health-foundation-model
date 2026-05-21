@@ -94,6 +94,22 @@ class LifeSnapsAdapter(BaseAdapter):
         log.info("[lifesnaps] reading %s", daily_path.name)
         daily = pd.read_csv(daily_path)
 
+        if survey_path.exists():
+            surveys = pd.read_csv(survey_path)
+            id_col = "id" if "id" in surveys.columns else "participant_id"
+            if id_col in surveys.columns:
+                keep_cols = [
+                    c for c in surveys.columns
+                    if c not in daily.columns or c in {"id", "participant_id"}
+                ]
+                if keep_cols:
+                    daily = daily.merge(
+                        surveys[keep_cols],
+                        left_on="id" if "id" in daily.columns else "participant_id",
+                        right_on=id_col,
+                        how="left",
+                    )
+
         # Map LifeSnaps columns -> LHFM schema. Most names need rewriting.
         # Reference: Yfantidou et al. 2022 supplementary table.
         col_map = {
@@ -123,9 +139,20 @@ class LifeSnapsAdapter(BaseAdapter):
         # ALERT, "TENSE/ANXIOUS", "RESTED/RELAXED", NEUTRAL). Collapse to a
         # single 1-7 valence/energy/stress score, NaN if no emotion reported.
         def _sema_col(name):
-            return pd.to_numeric(daily.get(name, 0), errors="coerce").fillna(0)
+            wanted = name.strip().upper()
+            normalized = {
+                str(col).strip().upper(): col
+                for col in daily.columns
+            }
+            for key in (wanted, f"{wanted}_X", f"{wanted}_Y"):
+                if key in normalized:
+                    return pd.to_numeric(
+                        daily[normalized[key]],
+                        errors="coerce",
+                    ).fillna(0)
+            return pd.Series(0, index=daily.index, dtype="float64")
 
-        happy  = _sema_col("HAPPY");          sad    = _sema_col("SAD")
+        happy = _sema_col("HAPPY");          sad    = _sema_col("SAD")
         tired  = _sema_col("TIRED");          alert  = _sema_col("ALERT")
         tense  = _sema_col("TENSE/ANXIOUS");  rested = _sema_col("RESTED/RELAXED")
         neutral = _sema_col("NEUTRAL")
