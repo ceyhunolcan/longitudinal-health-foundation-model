@@ -99,7 +99,7 @@ class _ModelHolder:
         self.window_days = loaded.window_days
         log.info(
             "loaded model from %s (d_model=%d, tasks=%s, window=%d)",
-            ckpt_path, d_model, task_names, window_days,
+            ckpt_path, self.d_model, self.task_names, self.window_days,
         )
         return True
 
