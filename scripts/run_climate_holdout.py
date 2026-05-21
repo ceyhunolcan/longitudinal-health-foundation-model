@@ -39,18 +39,17 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant  # noqa: E402
-from lhfm.features.baseline_features import compute_baseline_features as _cbf  # noqa: E402
-from lhfm.training.dataset import LongitudinalWindowDataset  # noqa: E402
-from lhfm.training.evaluate import evaluate_downstream  # noqa: E402
-from lhfm.utils.climate_regimes import (  # noqa: E402
+from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant
+from lhfm.features.baseline_features import compute_baseline_features as _cbf
+from lhfm.training.dataset import LongitudinalWindowDataset
+from lhfm.training.evaluate import evaluate_downstream
+from lhfm.utils.climate_regimes import (
     CLIMATE_REGIMES,
     define_climate_regime,
     regime_summary,
 )
-from lhfm.utils.config import load_config, resolve_device, set_global_seed  # noqa: E402
-from lhfm.utils.logging import get_logger  # noqa: E402
-
+from lhfm.utils.config import load_config, resolve_device, set_global_seed
+from lhfm.utils.logging import get_logger
 
 log = get_logger("climate_holdout")
 
@@ -147,8 +146,8 @@ def main() -> int:
 
     # Re-import training (we deferred to avoid torch in --no-retrain mode).
     import torch
+
     from lhfm.models.encoder import MultimodalLongitudinalEncoder
-    from lhfm.models.downstream import DownstreamRiskModel
     from lhfm.training.train_downstream import train_downstream
 
     modality_dims = {k: int(v) for k, v in meta["modality_dims"].items()}
@@ -186,7 +185,7 @@ def main() -> int:
         long["date"] = pd.to_datetime(long["date"])
         long = long.set_index(["participant_id", "date"])
         Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
-        for j, key in enumerate(zip(pids.tolist(), target_dates)):
+        for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
             try:
                 row = long.loc[key]
                 for i, col in enumerate(target_cols):
@@ -208,7 +207,7 @@ def main() -> int:
 
     train_ds = LongitudinalWindowDataset(Xtr, Ytr, modality_slices, participant_idx=idx_tr)
     val_ds = LongitudinalWindowDataset(Xva, Yva, modality_slices, participant_idx=idx_va)
-    test_ds = LongitudinalWindowDataset(Xte, Yte, modality_slices, participant_idx=idx_te)
+    LongitudinalWindowDataset(Xte, Yte, modality_slices, participant_idx=idx_te)
 
     log.info("fine-tuning downstream with redacted labels")
     state = train_downstream(
@@ -234,7 +233,7 @@ def main() -> int:
         sub_test["date"] = pd.to_datetime(sub_test["date"])
         regime_by_date = sub_test.set_index(["participant_id", "date"])
         regime_mask_arr = np.zeros(len(end_dates_te_pd), dtype=bool)
-        for j, (pid_i, edate) in enumerate(zip(pids_te.tolist(), end_dates_te_pd)):
+        for j, (pid_i, edate) in enumerate(zip(pids_te.tolist(), end_dates_te_pd, strict=False)):
             try:
                 row = regime_by_date.loc[(pid_i, edate)]
                 # Pull the regime via define_climate_regime applied to a 1-row frame.
@@ -289,8 +288,9 @@ def main() -> int:
 def _no_retrain_eval(args, cfg, df, meta, device, ckpt_path, summary) -> int:
     """Diagnostic mode: per-regime metrics on the already-saved checkpoint."""
     import torch
-    from lhfm.models.encoder import MultimodalLongitudinalEncoder
+
     from lhfm.models.downstream import DownstreamRiskModel
+    from lhfm.models.encoder import MultimodalLongitudinalEncoder
 
     log.info("diagnostic mode (no retraining): per-regime metrics on %s", ckpt_path.name)
 
@@ -351,7 +351,7 @@ def _no_retrain_eval(args, cfg, df, meta, device, ckpt_path, summary) -> int:
         long["date"] = pd.to_datetime(long["date"])
         long = long.set_index(["participant_id", "date"])
         Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
-        for j, key in enumerate(zip(pids.tolist(), target_dates)):
+        for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
             try:
                 row = long.loc[key]
                 for i, col in enumerate(target_cols):

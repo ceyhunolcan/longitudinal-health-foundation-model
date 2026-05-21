@@ -113,6 +113,6 @@ class TestBootstrapCI:
         from sklearn.metrics import roc_auc_score
         y_true = np.zeros(20, dtype=int)
         y_prob = np.random.random(20)
-        point, lo, hi = bootstrap_ci(y_true, y_prob, roc_auc_score,
+        point, _lo, _hi = bootstrap_ci(y_true, y_prob, roc_auc_score,
                                      n_resamples=50, seed=0)
         assert np.isnan(point)

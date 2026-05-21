@@ -24,8 +24,8 @@ from lhfm.features.baseline_features import (
     compute_baseline_features,
     fit_baseline_reference_stats,
 )
-from lhfm.features.wearable_features import compute_wearable_features
 from lhfm.features.smartphone_features import compute_smartphone_features
+from lhfm.features.wearable_features import compute_wearable_features
 from lhfm.utils.metrics import bootstrap_ci
 
 
@@ -37,7 +37,7 @@ class TestTrainDataAgeStandardization:
     """
 
     def test_fit_baseline_ref_stats_uses_one_row_per_participant(self):
-        # 50 days × 3 participants, but only 3 unique ages -> reference mean
+        # 50 days x 3 participants, but only 3 unique ages -> reference mean
         # should be the mean of the 3 ages, not the 150-row mean.
         df = pd.DataFrame({
             "participant_id": ["P01"]*50 + ["P02"]*50 + ["P03"]*50,
@@ -208,7 +208,7 @@ class TestEncoderBoundsChecks:
 
 class TestEncoderParameterCount:
     def test_count_parameters_breakdown_sums(self):
-        torch = pytest.importorskip("torch")
+        pytest.importorskip("torch")
         from lhfm.models.encoder import MultimodalLongitudinalEncoder
         enc = MultimodalLongitudinalEncoder(
             modality_dims={"wearable": 4, "smartphone": 3},

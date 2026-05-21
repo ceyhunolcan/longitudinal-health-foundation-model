@@ -14,7 +14,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-
 _EXPANDING_MIN_PERIODS = 5
 
 
@@ -37,7 +36,7 @@ def compute_climate_features(df: pd.DataFrame) -> pd.DataFrame:
     df["nighttime_heat_stress"] = (df["heat_index"] - 5.0).clip(lower=0)
 
     chunks = []
-    for pid, g in df.groupby("participant_id"):
+    for _pid, g in df.groupby("participant_id"):
         g = g.copy()
         g["heat_exposure_3d"] = g["heat_index"].rolling(3, min_periods=1).mean()
         g["aqi_burden_7d"] = g["aqi"].rolling(7, min_periods=1).mean()

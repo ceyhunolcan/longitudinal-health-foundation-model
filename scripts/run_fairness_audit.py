@@ -30,18 +30,17 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant  # noqa: E402
-from lhfm.features.baseline_features import compute_baseline_features as _cbf  # noqa: E402
-from lhfm.training.dataset import LongitudinalWindowDataset  # noqa: E402
-from lhfm.training.evaluate import evaluate_downstream  # noqa: E402
-from lhfm.utils.config import load_config, resolve_device, set_global_seed  # noqa: E402
-from lhfm.utils.fairness import (  # noqa: E402
+from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant
+from lhfm.features.baseline_features import compute_baseline_features as _cbf
+from lhfm.training.dataset import LongitudinalWindowDataset
+from lhfm.training.evaluate import evaluate_downstream
+from lhfm.utils.config import load_config, resolve_device, set_global_seed
+from lhfm.utils.fairness import (
     check_fairness_thresholds,
     fairness_report_to_csv,
     run_fairness_audit,
 )
-from lhfm.utils.logging import get_logger  # noqa: E402
-
+from lhfm.utils.logging import get_logger
 
 log = get_logger("fairness_audit")
 
@@ -83,8 +82,9 @@ def main() -> int:
 
     # Rebuild model.
     import torch
-    from lhfm.models.encoder import MultimodalLongitudinalEncoder
+
     from lhfm.models.downstream import DownstreamRiskModel
+    from lhfm.models.encoder import MultimodalLongitudinalEncoder
     encoder = MultimodalLongitudinalEncoder(
         modality_dims={k: int(v) for k, v in meta["modality_dims"].items()},
         d_model=int(meta["d_model"]),
@@ -173,7 +173,7 @@ def main() -> int:
     long["date"] = pd.to_datetime(long["date"])
     long = long.set_index(["participant_id", "date"])
     Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
-    for j, key in enumerate(zip(pids.tolist(), target_dates)):
+    for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
         try:
             row = long.loc[key]
             for i, col in enumerate(target_cols):
@@ -193,11 +193,11 @@ def main() -> int:
     long_md = long_md.set_index(["participant_id", "date"])
     rows_meta = []
     end_dates_pd = pd.to_datetime(end_dates)
-    for pid_i, edate in zip(pids.tolist(), end_dates_pd):
+    for pid_i, edate in zip(pids.tolist(), end_dates_pd, strict=False):
         try:
             rows_meta.append(long_md.loc[(pid_i, edate)].to_dict())
         except KeyError:
-            rows_meta.append({c: None for c in md_cols})
+            rows_meta.append(dict.fromkeys(md_cols))
     metadata = pd.DataFrame(rows_meta)
 
     pid_to_idx = {p: i for i, p in enumerate(sorted(df["participant_id"].unique()))}

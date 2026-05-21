@@ -17,8 +17,6 @@ Outputs
 
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 import torch.nn as nn
 
@@ -176,9 +174,9 @@ class MultimodalLongitudinalEncoder(nn.Module):
     def forward(
         self,
         modalities: dict[str, torch.Tensor],
-        masks: Optional[dict[str, torch.Tensor]] = None,
-        participant_idx: Optional[torch.Tensor] = None,
-        pad_mask: Optional[torch.Tensor] = None,
+        masks: dict[str, torch.Tensor] | None = None,
+        participant_idx: torch.Tensor | None = None,
+        pad_mask: torch.Tensor | None = None,
     ) -> dict[str, torch.Tensor]:
         """Forward pass.
 

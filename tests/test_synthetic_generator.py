@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-import pytest
-
 
 REQUIRED = {
     "participant_id", "date", "age", "sex",
@@ -131,7 +129,7 @@ def test_within_person_mood_sleep_correlation_in_target_range():
     from lhfm.data.synthetic_generator import generate_synthetic_cohort
     df = generate_synthetic_cohort(n_participants=60, n_days=45, seed=7)
     corrs = []
-    for pid, g in df.groupby("participant_id"):
+    for _pid, g in df.groupby("participant_id"):
         g = g.dropna(subset=["survey_mood", "sleep_duration"])
         if len(g) >= 15:
             c = g[["survey_mood", "sleep_duration"]].corr().iloc[0, 1]

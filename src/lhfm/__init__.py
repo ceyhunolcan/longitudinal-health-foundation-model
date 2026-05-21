@@ -39,24 +39,24 @@ __version__ = "0.2.0"
 # Everything else is reachable via fully-qualified imports
 # (``from lhfm.utils.fairness import run_fairness_audit``, etc.).
 
-from lhfm.data.synthetic_generator import (
-    GeneratorConfig,
-    SyntheticCohortGenerator,
-    generate_synthetic_cohort,
-)
-from lhfm.data.validation import validate_synthetic_dataframe
-from lhfm.data.preprocessing import (
-    build_windows,
-    train_val_test_split_by_participant,
-    binarize_targets,
-)
-from lhfm.features import build_full_feature_table
 from lhfm.data.adapters import (
     AdapterConfig,
     get_adapter,
     list_adapters,
     preflight_report,
 )
+from lhfm.data.preprocessing import (
+    binarize_targets,
+    build_windows,
+    train_val_test_split_by_participant,
+)
+from lhfm.data.synthetic_generator import (
+    GeneratorConfig,
+    SyntheticCohortGenerator,
+    generate_synthetic_cohort,
+)
+from lhfm.data.validation import validate_synthetic_dataframe
+from lhfm.features import build_full_feature_table
 
 
 def load_downstream_checkpoint(checkpoint_path, **kwargs):
@@ -96,22 +96,22 @@ def load_cohort(adapter_name: str, raw_dir, **kwargs):
 
 
 __all__ = [
-    "__version__",
+    "AdapterConfig",
     # cohort sources
     "GeneratorConfig",
     "SyntheticCohortGenerator",
-    "generate_synthetic_cohort",
-    "load_cohort",
-    "AdapterConfig",
-    "get_adapter",
-    "list_adapters",
-    "preflight_report",
-    # preprocessing + features
-    "validate_synthetic_dataframe",
-    "build_windows",
-    "train_val_test_split_by_participant",
+    "__version__",
     "binarize_targets",
     "build_full_feature_table",
+    "build_windows",
+    "generate_synthetic_cohort",
+    "get_adapter",
+    "list_adapters",
+    "load_cohort",
     # trained-model loading
     "load_downstream_checkpoint",
+    "preflight_report",
+    "train_val_test_split_by_participant",
+    # preprocessing + features
+    "validate_synthetic_dataframe",
 ]

@@ -47,7 +47,7 @@ def test_target_columns_present(engineered):
 
 def test_within_person_zscore_is_near_zero_mean(engineered):
     """Within-person z-scores should have near-zero mean inside each participant."""
-    for pid, g in engineered.groupby("participant_id"):
+    for _pid, g in engineered.groupby("participant_id"):
         # If the column has any variance the within-person z mean should be small.
         z_mean = g["screen_time_z"].mean()
         assert abs(z_mean) < 1e-6 or pd.isna(z_mean)
@@ -65,7 +65,7 @@ def test_build_windows_shape():
     df = generate_synthetic_cohort(n_participants=4, n_days=25, seed=1)
     feat = build_full_feature_table(df, impute=True, add_targets=True)
     feature_cols = ["sleep_duration", "hrv_rmssd", "stress_burden_7d", "heat_index"]
-    X, y, pids, dates = build_windows(
+    X, y, pids, _dates = build_windows(
         feat, feature_cols=feature_cols, target_col="target_low_mood",
         window_days=10, stride=1, target_mode="next_day",
     )

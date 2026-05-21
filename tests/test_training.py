@@ -128,7 +128,7 @@ class TestTrainDownstream:
         # change re-wraps state in a dict, this test will fail.
         state_dict = torch.load(tmp_path / "ds.pt", map_location="cpu", weights_only=True)
         assert isinstance(state_dict, dict)
-        assert any("encoder" in k for k in state_dict.keys())
+        assert any("encoder" in k for k in state_dict)
 
 
 # ---------------------------------------------------------------------------
@@ -138,8 +138,8 @@ class TestTrainDownstream:
 
 class TestPretrainSsl:
     def test_runs_two_epochs(self, tmp_path: Path):
-        from lhfm.training.train_ssl import pretrain_ssl
         from lhfm.models.self_supervised import SSLLossWeights
+        from lhfm.training.train_ssl import pretrain_ssl
         train_ds = _toy_dataset(n_windows=32, seed=4)
         val_ds = _toy_dataset(n_windows=12, seed=5)
         encoder = _toy_encoder()
@@ -157,10 +157,11 @@ class TestPretrainSsl:
     def test_eval_is_deterministic(self):
         """SSL validation loss must not change when called twice with the
         same model state -- the regression test for the random-mask bug."""
-        from lhfm.training.train_ssl import _evaluate_ssl
-        from lhfm.models.self_supervised import SelfSupervisedModel, SSLLossWeights
         from torch.utils.data import DataLoader
+
+        from lhfm.models.self_supervised import SelfSupervisedModel, SSLLossWeights
         from lhfm.training.dataset import collate_windows
+        from lhfm.training.train_ssl import _evaluate_ssl
 
         val_ds = _toy_dataset(n_windows=24, seed=6)
         encoder = _toy_encoder()

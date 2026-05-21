@@ -42,8 +42,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from lhfm.utils.config import load_config  # noqa: E402
-from lhfm.utils.logging import get_logger  # noqa: E402
+from lhfm.utils.config import load_config
+from lhfm.utils.logging import get_logger
 
 log = get_logger("export_release")
 

@@ -6,7 +6,7 @@ save, display, or embed in Streamlit.
 
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from collections.abc import Iterable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +18,7 @@ from .metrics import reliability_curve
 def plot_participant_trends(
     df: pd.DataFrame,
     columns: Iterable[str],
-    title: Optional[str] = None,
+    title: str | None = None,
 ) -> plt.Figure:
     """Stack of small line plots, one per column, sharing the x-axis.
 
@@ -34,7 +34,7 @@ def plot_participant_trends(
     if len(cols) == 1:
         axes = [axes]
 
-    for ax, col in zip(axes, cols):
+    for ax, col in zip(axes, cols, strict=False):
         if col not in df.columns:
             ax.text(0.5, 0.5, f"{col} not available", transform=ax.transAxes,
                     ha="center", va="center", color="gray")
@@ -75,9 +75,15 @@ def plot_confusion(cm: np.ndarray, labels: tuple[str, str] = ("neg", "pos")) -> 
     cm = np.asarray(cm)
     fig, ax = plt.subplots(figsize=(3.5, 3.5))
     im = ax.imshow(cm, cmap="Blues")
-    ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
-    ax.set_xticklabels(labels); ax.set_yticklabels(labels)
-    ax.set_xlabel("predicted"); ax.set_ylabel("actual")
+    ax.set_xticks([0, 1])
+
+    ax.set_yticks([0, 1])
+    ax.set_xticklabels(labels)
+
+    ax.set_yticklabels(labels)
+    ax.set_xlabel("predicted")
+
+    ax.set_ylabel("actual")
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
             ax.text(j, i, str(cm[i, j]), ha="center", va="center",
@@ -95,7 +101,9 @@ def plot_embedding_2d(coords: np.ndarray, labels: np.ndarray, title: str = "embe
         m = labels == u
         ax.scatter(coords[m, 0], coords[m, 1], s=10, alpha=0.7, label=str(u))
     ax.set_title(title)
-    ax.set_xlabel("dim 1"); ax.set_ylabel("dim 2")
+    ax.set_xlabel("dim 1")
+
+    ax.set_ylabel("dim 2")
     ax.grid(True, alpha=0.3)
     if len(uniq) <= 10:
         ax.legend(fontsize=7, markerscale=1.5)

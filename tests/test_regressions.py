@@ -11,9 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from lhfm.data.synthetic_generator import generate_synthetic_cohort
 from lhfm.data.preprocessing import binarize_targets, build_windows
-from lhfm.features import build_full_feature_table
 from lhfm.features.baseline_features import (
     AGE_REF_MEAN,
     AGE_REF_STD,

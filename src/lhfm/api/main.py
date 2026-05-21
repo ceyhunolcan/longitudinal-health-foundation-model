@@ -18,14 +18,12 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 
 from lhfm.api.schemas import (
-    DailyRecord,
     HealthResponse,
     PredictRequest,
     PredictResponse,
@@ -33,7 +31,6 @@ from lhfm.api.schemas import (
 )
 from lhfm.features import build_full_feature_table
 from lhfm.utils.logging import get_logger
-
 
 log = get_logger(__name__)
 
@@ -60,7 +57,7 @@ class _ModelHolder:
         self.feature_columns: list[str] = []
         self.modality_slices: dict[str, tuple[int, int]] = {}
         self.task_names: list[str] = []
-        self.d_model: Optional[int] = None
+        self.d_model: int | None = None
         self.window_days: int = DEFAULT_WINDOW_DAYS
 
     def try_load(self, checkpoint_path: Path | str) -> bool:
@@ -248,6 +245,7 @@ def _predict_with_model(feat: pd.DataFrame):
     is most confidently flagging this person, rather than averaged noise).
     """
     import torch
+
     from lhfm.interpretability import attribute, humanize_attribution
 
     cols = MODEL.feature_columns

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import torch
@@ -23,8 +22,8 @@ from lhfm.models.self_supervised import (
     ssl_loss,
 )
 from lhfm.utils.logging import get_logger
-from .dataset import LongitudinalWindowDataset, collate_windows
 
+from .dataset import LongitudinalWindowDataset, collate_windows
 
 log = get_logger(__name__)
 
@@ -40,17 +39,17 @@ class SSLTrainState:
 def pretrain_ssl(
     encoder: MultimodalLongitudinalEncoder,
     train_dataset: LongitudinalWindowDataset,
-    val_dataset: Optional[LongitudinalWindowDataset] = None,
+    val_dataset: LongitudinalWindowDataset | None = None,
     reconstruction_target_modality: str = "wearable",
     epochs: int = 15,
     batch_size: int = 32,
     lr: float = 5e-4,
     weight_decay: float = 1e-5,
     mask_ratio: float = 0.20,
-    weights: Optional[SSLLossWeights] = None,
+    weights: SSLLossWeights | None = None,
     device: str = "cpu",
     num_workers: int = 0,
-    checkpoint_path: Optional[Path | str] = None,
+    checkpoint_path: Path | str | None = None,
     early_stopping_patience: int = 5,
 ) -> SSLTrainState:
     """Run masked-reconstruction + next-day + contrastive pretraining.
@@ -75,7 +74,6 @@ def pretrain_ssl(
         if val_dataset is not None else None
     )
 
-    a_slice = encoder.modality_dims  # for shape introspection later
     train_losses, val_losses = [], []
     best_val = float("inf")
     patience = 0
@@ -92,7 +90,7 @@ def pretrain_ssl(
             )
 
             target_full = modalities[reconstruction_target_modality]  # (B, T, F)
-            B, T, _ = target_full.shape
+            _B, _T, _ = target_full.shape
 
             # Build the masked and "second view" inputs.
             target_masked, recon_mask = make_masked_view(target_full, mask_ratio=mask_ratio)

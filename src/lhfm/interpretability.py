@@ -32,7 +32,6 @@ dataframe sorted by absolute attribution.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import torch
@@ -71,7 +70,7 @@ def attribute(
     masks: dict[str, torch.Tensor] | None = None,
     participant_idx: torch.Tensor | None = None,
     pad_mask: torch.Tensor | None = None,
-    baseline: Optional[dict[str, torch.Tensor]] = None,
+    baseline: dict[str, torch.Tensor] | None = None,
     n_steps: int = 32,
     device: str = "cpu",
 ) -> AttributionResult:

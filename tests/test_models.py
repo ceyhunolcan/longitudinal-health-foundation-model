@@ -54,7 +54,7 @@ def test_ssl_model_returns_all_heads():
 
 def test_ssl_loss_decreases_when_recon_is_perfect():
     """Sanity: zero residuals should give zero recon loss."""
-    from lhfm.models.self_supervised import ssl_loss, SSLLossWeights
+    from lhfm.models.self_supervised import SSLLossWeights, ssl_loss
     recon = torch.randn(2, 5, 4)
     mask = torch.ones(2, 5)
     out_a = {
@@ -72,8 +72,8 @@ def test_ssl_loss_decreases_when_recon_is_perfect():
 
 
 def test_downstream_model_predict_proba_range():
-    from lhfm.models.encoder import MultimodalLongitudinalEncoder
     from lhfm.models.downstream import DownstreamRiskModel
+    from lhfm.models.encoder import MultimodalLongitudinalEncoder
     encoder = MultimodalLongitudinalEncoder(
         modality_dims={"wearable": 4, "smartphone": 3},
         d_model=16, n_heads=2, n_layers=1, max_seq_len=10,

@@ -30,17 +30,21 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant  # noqa: E402
-from lhfm.features import build_full_feature_table                                     # noqa: E402
-from lhfm.training.dataset import LongitudinalWindowDataset                            # noqa: E402
-from lhfm.training.evaluate import (                                                   # noqa: E402
-    baseline_comparison, evaluate_downstream, save_results_table,
-)
-from lhfm.training.train_downstream import train_downstream                            # noqa: E402
-from lhfm.training.train_ssl import pretrain_ssl                                       # noqa: E402
-from lhfm.utils.config import load_config, resolve_device, set_global_seed             # noqa: E402
-from lhfm.utils.logging import get_logger                                              # noqa: E402
+import functools
+import operator
 
+from lhfm.data.preprocessing import build_windows, train_val_test_split_by_participant
+from lhfm.features import build_full_feature_table
+from lhfm.training.dataset import LongitudinalWindowDataset
+from lhfm.training.evaluate import (
+    baseline_comparison,
+    evaluate_downstream,
+    save_results_table,
+)
+from lhfm.training.train_downstream import train_downstream
+from lhfm.training.train_ssl import pretrain_ssl
+from lhfm.utils.config import load_config, resolve_device, set_global_seed
+from lhfm.utils.logging import get_logger
 
 log = get_logger("train")
 
@@ -203,7 +207,7 @@ def main() -> int:
         for mod, cols in feature_groups.items():
             feature_groups[mod] = [c for c in cols if not c.startswith("survey_")]
 
-    feature_cols = sum(feature_groups.values(), [])
+    feature_cols = functools.reduce(operator.iadd, feature_groups.values(), [])
     for c in feature_cols:
         if c not in df.columns:
             raise KeyError(f"feature column '{c}' missing from dataframe")
@@ -272,7 +276,7 @@ def main() -> int:
         long = split_df[["participant_id", "date", *target_cols]].copy()
         long["date"] = pd.to_datetime(long["date"])
         long = long.set_index(["participant_id", "date"])
-        keys = list(zip(pids.tolist(), target_dates))
+        keys = list(zip(pids.tolist(), target_dates, strict=False))
         Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
         for j, key in enumerate(keys):
             try:

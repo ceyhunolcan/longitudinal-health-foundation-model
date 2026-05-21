@@ -25,13 +25,12 @@ it's also a CI gate.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 from .metrics import binary_classification_report, bootstrap_ci, expected_calibration_error
-
 
 # Subgroups we report on by default. Each entry maps an *output axis name*
 # to either:
@@ -146,7 +145,7 @@ def run_fairness_audit(
             if n_pos > 0 and n_neg > 0 and len(np.unique(yt)) >= 2:
                 rep = binary_classification_report(yt, yp, threshold=threshold)
                 rep["ece"] = expected_calibration_error(yt, yp)
-                auroc_pt, auroc_lo, auroc_hi = bootstrap_ci(
+                _auroc_pt, auroc_lo, auroc_hi = bootstrap_ci(
                     yt, yp, roc_auc_score,
                     n_resamples=bootstrap_resamples, seed=seed,
                     groups=groups_v[mask] if groups_v is not None else None,

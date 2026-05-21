@@ -9,7 +9,9 @@ set isn't very informative without a confidence interval. Reviewers will ask.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+import itertools
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 from sklearn.metrics import (
@@ -41,7 +43,7 @@ def binary_classification_report(
         "brier": float(brier_score_loss(y_true, y_prob)) if len(y_true) else float("nan"),
         "threshold": threshold,
         "n_pos": int(y_true.sum()),
-        "n_total": int(len(y_true)),
+        "n_total": len(y_true),
         "confusion_matrix": confusion_matrix(y_true, y_pred).tolist(),
     }
 
@@ -72,7 +74,7 @@ def expected_calibration_error(
     bins = np.linspace(0.0, 1.0, n_bins + 1)
     ece = 0.0
     n = len(y_true)
-    for lo, hi in zip(bins[:-1], bins[1:]):
+    for lo, hi in itertools.pairwise(bins):
         mask = (y_prob >= lo) & (y_prob < hi) if hi < 1.0 else (y_prob >= lo) & (y_prob <= hi)
         if not mask.any():
             continue
@@ -97,7 +99,7 @@ def reliability_curve(
     y_prob = np.asarray(y_prob).astype(float).ravel()
     bins = np.linspace(0.0, 1.0, n_bins + 1)
     pred_means, frac_pos, counts = [], [], []
-    for lo, hi in zip(bins[:-1], bins[1:]):
+    for lo, hi in itertools.pairwise(bins):
         mask = (y_prob >= lo) & (y_prob < hi) if hi < 1.0 else (y_prob >= lo) & (y_prob <= hi)
         if not mask.any():
             continue

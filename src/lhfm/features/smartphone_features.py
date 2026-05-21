@@ -13,7 +13,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-
 _EXPANDING_MIN_PERIODS = 5
 
 
@@ -36,7 +35,7 @@ def compute_smartphone_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.sort_values(["participant_id", "date"]).copy()
     chunks = []
 
-    for pid, g in df.groupby("participant_id"):
+    for _pid, g in df.groupby("participant_id"):
         g = g.copy()
 
         # Within-person *causal* z-scores. These give the foundation model a

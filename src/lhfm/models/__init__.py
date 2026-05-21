@@ -1,15 +1,15 @@
 """Neural network components for longitudinal multimodal modelling."""
 
-from .encoder import MultimodalLongitudinalEncoder
-from .transformer import TemporalTransformer, SinusoidalPositionalEncoding
-from .self_supervised import SelfSupervisedModel, ssl_loss
 from .downstream import DownstreamRiskModel
+from .encoder import MultimodalLongitudinalEncoder
+from .self_supervised import SelfSupervisedModel, ssl_loss
+from .transformer import SinusoidalPositionalEncoding, TemporalTransformer
 
 __all__ = [
-    "MultimodalLongitudinalEncoder",
-    "TemporalTransformer",
-    "SinusoidalPositionalEncoding",
-    "SelfSupervisedModel",
-    "ssl_loss",
     "DownstreamRiskModel",
+    "MultimodalLongitudinalEncoder",
+    "SelfSupervisedModel",
+    "SinusoidalPositionalEncoding",
+    "TemporalTransformer",
+    "ssl_loss",
 ]

@@ -20,8 +20,6 @@ unit-tested separately with mocks; the adapters always run with
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -36,7 +34,6 @@ from lhfm.data.adapters import (
     register_adapter,
 )
 from lhfm.data.weather import _pm25_to_aqi
-
 
 # ---------------------------------------------------------------------------
 # Registry
@@ -314,7 +311,7 @@ class TestGlobemAdapter:
     def test_loads_both_institutes(self, fake_globem_dir):
         cfg = AdapterConfig(raw_dir=fake_globem_dir, enrich_weather=False)
         df = get_adapter("globem")(cfg).build()
-        # 2 institutes × 4 participants = 8 participants, × 20 days = 160 rows
+        # 2 institutes x 4 participants = 8 participants, x 20 days = 160 rows
         assert df["participant_id"].nunique() == 8
         assert len(df) == 160
         assert df["institute_year"].nunique() == 2

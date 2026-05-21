@@ -31,17 +31,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from lhfm.data.adapters import (                                            # noqa: E402
+from lhfm.data.adapters import (
     AdapterConfig,
     get_adapter,
     list_adapters,
     preflight_report,
 )
-from lhfm.data.validation import validate_synthetic_dataframe               # noqa: E402
-from lhfm.features import build_full_feature_table                          # noqa: E402
-from lhfm.utils.config import load_config, set_global_seed                  # noqa: E402
-from lhfm.utils.logging import get_logger                                   # noqa: E402
-
+from lhfm.data.validation import validate_synthetic_dataframe
+from lhfm.features import build_full_feature_table
+from lhfm.utils.config import load_config, set_global_seed
+from lhfm.utils.logging import get_logger
 
 log = get_logger("pipeline")
 
@@ -111,14 +110,14 @@ def main() -> int:
         adapter = AdapterCls(
             adapter_cfg, n_participants=n_participants, n_days=n_days, seed=seed,
         )
-        log.info("using synthetic adapter (n=%d × %d days, seed=%d)",
+        log.info("using synthetic adapter (n=%d x %d days, seed=%d)",
                  n_participants, n_days, seed)
     else:
         adapter = AdapterCls(adapter_cfg)
         log.info("using %s adapter on %s", args.adapter, raw_dir)
 
     raw = adapter.build()
-    log.info("adapter produced: %d rows × %d cols, %d participants",
+    log.info("adapter produced: %d rows x %d cols, %d participants",
              len(raw), raw.shape[1], raw["participant_id"].nunique())
 
     # Preflight: report and stop.
@@ -146,7 +145,7 @@ def main() -> int:
     # Engineer features.
     log.info("engineering features")
     feat = build_full_feature_table(raw, impute=True, add_targets=True)
-    log.info("feature table: %d rows × %d columns", *feat.shape)
+    log.info("feature table: %d rows x %d columns", *feat.shape)
 
     csv_out = processed_dir / "features.csv"
     feat.to_csv(csv_out, index=False)
@@ -165,7 +164,7 @@ def main() -> int:
     meta = {
         "adapter": args.adapter,
         "seed": seed,
-        "n_rows": int(len(feat)),
+        "n_rows": len(feat),
         "n_columns": int(feat.shape[1]),
         "target_columns": [c for c in feat.columns if c.startswith("target_")],
         "validation_summary": report.summary,

@@ -14,18 +14,17 @@ missing.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
 
 torch = pytest.importorskip("torch")
 
-from lhfm.models.downstream import DownstreamRiskModel  # noqa: E402
-from lhfm.models.encoder import MultimodalLongitudinalEncoder  # noqa: E402
 from lhfm.interpretability import (  # noqa: E402
     aggregate_to_feature_table,
     attribute,
     humanize_attribution,
 )
+from lhfm.models.downstream import DownstreamRiskModel  # noqa: E402
+from lhfm.models.encoder import MultimodalLongitudinalEncoder  # noqa: E402
 
 
 def _toy_model(modality_dims=None, tasks=None):

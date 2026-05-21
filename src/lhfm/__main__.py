@@ -26,7 +26,6 @@ import importlib
 import sys
 from pathlib import Path
 
-
 # Subcommand name -> (script module name, one-line help text)
 _SUBCOMMANDS: dict[str, tuple[str, str]] = {
     "demo":            ("demo",                  "60-second end-to-end demo on a tiny synthetic cohort"),

@@ -12,9 +12,9 @@ predicting ``0`` and AUROC degenerates.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Optional
 
 import numpy as np
 import torch
@@ -25,8 +25,8 @@ from lhfm.models.downstream import DownstreamRiskModel
 from lhfm.models.encoder import MultimodalLongitudinalEncoder
 from lhfm.utils.logging import get_logger
 from lhfm.utils.metrics import binary_classification_report
-from .dataset import LongitudinalWindowDataset, collate_windows
 
+from .dataset import LongitudinalWindowDataset, collate_windows
 
 log = get_logger(__name__)
 
@@ -43,7 +43,7 @@ class DownstreamTrainState:
 def _masked_bce(
     logits: torch.Tensor,
     targets: torch.Tensor,
-    pos_weight: Optional[torch.Tensor] = None,
+    pos_weight: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """BCE-with-logits that ignores NaN targets.
 
@@ -87,7 +87,7 @@ def train_downstream(
     encoder: MultimodalLongitudinalEncoder,
     task_names: Iterable[str],
     train_dataset: LongitudinalWindowDataset,
-    val_dataset: Optional[LongitudinalWindowDataset] = None,
+    val_dataset: LongitudinalWindowDataset | None = None,
     epochs: int = 25,
     batch_size: int = 32,
     lr: float = 5e-4,
@@ -95,7 +95,7 @@ def train_downstream(
     device: str = "cpu",
     num_workers: int = 0,
     freeze_encoder: bool = False,
-    checkpoint_path: Optional[Path | str] = None,
+    checkpoint_path: Path | str | None = None,
     early_stopping_patience: int = 5,
 ) -> DownstreamTrainState:
     """Train ``DownstreamRiskModel`` and return the trained instance."""

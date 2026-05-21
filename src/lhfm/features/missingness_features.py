@@ -27,7 +27,7 @@ def compute_missingness_features(df: pd.DataFrame) -> pd.DataFrame:
     ).astype(int)
 
     chunks = []
-    for pid, g in df.groupby("participant_id"):
+    for _pid, g in df.groupby("participant_id"):
         g = g.copy()
 
         # Consecutive run length of any-missing days.
@@ -42,8 +42,6 @@ def compute_missingness_features(df: pd.DataFrame) -> pd.DataFrame:
 
         # Per-row entropy across the three modality flags. With three binary
         # flags the max entropy is log(3) so we normalize by it.
-        flags = g[["missing_wearable_flag", "missing_phone_flag", "missing_survey_flag"]].values
-        # Rolling 7-day proportion of dropouts in each modality.
         roll = (
             g[["missing_wearable_flag", "missing_phone_flag", "missing_survey_flag"]]
             .rolling(7, min_periods=1)

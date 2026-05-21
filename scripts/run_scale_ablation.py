@@ -29,7 +29,6 @@ file argument supports that path.
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
@@ -40,20 +39,25 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from lhfm.data.preprocessing import (  # noqa: E402
-    build_windows, train_val_test_split_by_participant,
+import functools
+import operator
+
+from lhfm.data.preprocessing import (
+    build_windows,
+    train_val_test_split_by_participant,
 )
-from lhfm.data.synthetic_generator import generate_synthetic_cohort  # noqa: E402
-from lhfm.features import build_full_feature_table  # noqa: E402
-from lhfm.features.baseline_features import (  # noqa: E402
+from lhfm.data.synthetic_generator import generate_synthetic_cohort
+from lhfm.features import build_full_feature_table
+from lhfm.features.baseline_features import (
     compute_baseline_features as _cbf,
+)
+from lhfm.features.baseline_features import (
     fit_baseline_reference_stats,
 )
-from lhfm.training.dataset import LongitudinalWindowDataset  # noqa: E402
-from lhfm.training.evaluate import evaluate_downstream  # noqa: E402
-from lhfm.utils.config import load_config, resolve_device, set_global_seed  # noqa: E402
-from lhfm.utils.logging import get_logger  # noqa: E402
-
+from lhfm.training.dataset import LongitudinalWindowDataset
+from lhfm.training.evaluate import evaluate_downstream
+from lhfm.utils.config import load_config, resolve_device, set_global_seed
+from lhfm.utils.logging import get_logger
 
 log = get_logger("scale_ablation")
 
@@ -128,7 +132,7 @@ def _make_cohort_dataset(n_participants: int, n_days: int, seed: int, cfg: dict)
         splits[k] = _cbf(splits[k], age_ref_mean=ref["age_ref_mean"],
                          age_ref_std=ref["age_ref_std"])
 
-    feature_cols = sum(FEATURE_GROUPS.values(), [])
+    feature_cols = functools.reduce(operator.iadd, FEATURE_GROUPS.values(), [])
     cursor, slices = 0, {}
     for mod, cols in FEATURE_GROUPS.items():
         slices[mod] = (cursor, cursor + len(cols))
@@ -150,7 +154,7 @@ def _make_cohort_dataset(n_participants: int, n_days: int, seed: int, cfg: dict)
         long["date"] = pd.to_datetime(long["date"])
         long = long.set_index(["participant_id", "date"])
         Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
-        for j, key in enumerate(zip(pids.tolist(), target_dates)):
+        for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
             try:
                 row = long.loc[key]
                 for i, col in enumerate(target_cols):
@@ -184,9 +188,9 @@ def _run_one(size: int, seed: int, args, cfg, device):
     )
 
     from lhfm.models.encoder import MultimodalLongitudinalEncoder
+    from lhfm.models.self_supervised import SSLLossWeights
     from lhfm.training.train_downstream import train_downstream
     from lhfm.training.train_ssl import pretrain_ssl
-    from lhfm.models.self_supervised import SSLLossWeights
 
     encoder_cfg = cfg["encoder"]
     encoder = MultimodalLongitudinalEncoder(

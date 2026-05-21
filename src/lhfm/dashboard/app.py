@@ -32,13 +32,11 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from lhfm.utils.config import load_config, project_root
+from lhfm.utils.config import load_config
 from lhfm.utils.plotting import (
-    plot_calibration,
     plot_missingness_heatmap,
     plot_participant_trends,
 )
-
 
 # ---------------------------------------------------------------------------
 # Page setup
@@ -199,7 +197,7 @@ _FALLBACK_DRIVERS = {
 
 
 def _per_day_risk_and_drivers(sub: pd.DataFrame, task: str) -> tuple[np.ndarray, pd.DataFrame]:
-    """Return (per-day risk vector, drivers DataFrame [date × driver_label])
+    """Return (per-day risk vector, drivers DataFrame [date x driver_label])
     for the chosen task on this participant.
 
     The drivers DataFrame is signed: a positive value means that feature
@@ -258,7 +256,7 @@ def _draw_attribution_timeline(sub: pd.DataFrame, task: str, focus_date: pd.Time
     arr = drivers.values.T            # (n_drivers, T)
     labels = drivers.columns.tolist()
     vmax = max(0.01, float(np.nanmax(np.abs(arr))))
-    im = ax_bot.imshow(
+    ax_bot.imshow(
         arr, aspect="auto", cmap="RdBu_r",
         vmin=-vmax, vmax=vmax, interpolation="nearest",
     )

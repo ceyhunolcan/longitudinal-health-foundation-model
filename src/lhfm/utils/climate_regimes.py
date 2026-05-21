@@ -20,9 +20,7 @@ API:
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
-
 
 CLIMATE_REGIMES = ("normal", "heat_wave", "cold_snap", "smoke_episode")
 
@@ -74,7 +72,7 @@ def regime_summary(df: pd.DataFrame) -> pd.DataFrame:
             if tcol in df.columns:
                 vals = sub[tcol].dropna()
                 out[regime][f"{tcol}_prevalence"] = float(vals.mean()) if len(vals) else float("nan")
-                out[regime][f"{tcol}_n_labelled"] = int(len(vals))
+                out[regime][f"{tcol}_n_labelled"] = len(vals)
     return pd.DataFrame(out).T
 
 

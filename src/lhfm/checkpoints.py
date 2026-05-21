@@ -91,6 +91,7 @@ def load_downstream(
     JSON is malformed, the underlying ``json.JSONDecodeError`` propagates.
     """
     import torch
+
     from lhfm.models.downstream import DownstreamRiskModel
     from lhfm.models.encoder import MultimodalLongitudinalEncoder
 

@@ -7,7 +7,7 @@ we just wrap them with the modality-split that the encoder expects.
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 import numpy as np
 import torch
@@ -38,8 +38,8 @@ class LongitudinalWindowDataset(Dataset):
         X: np.ndarray,
         y: np.ndarray,
         modality_slices: dict[str, tuple[int, int]],
-        participant_idx: Optional[np.ndarray] = None,
-        masks: Optional[np.ndarray] = None,
+        participant_idx: np.ndarray | None = None,
+        masks: np.ndarray | None = None,
     ):
         self.X = X.astype(np.float32)
         # Force at least 2D so single-task case still indexes correctly.

@@ -40,7 +40,7 @@ class SinusoidalPositionalEncoding(nn.Module):
         """
         T = x.size(1)
         max_len = self.pe.size(1)
-        if T > max_len:
+        if max_len < T:
             raise ValueError(
                 f"sequence length {T} exceeds positional encoding max_len {max_len}; "
                 f"reconstruct the encoder with max_seq_len >= {T}"

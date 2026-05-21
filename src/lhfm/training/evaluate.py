@@ -13,8 +13,8 @@ Both functions return plain dicts so callers can json-dump them.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, Optional
 
 import numpy as np
 import torch
@@ -26,8 +26,8 @@ from lhfm.utils.metrics import (
     binary_classification_report,
     expected_calibration_error,
 )
-from .dataset import LongitudinalWindowDataset, collate_windows
 
+from .dataset import LongitudinalWindowDataset, collate_windows
 
 log = get_logger(__name__)
 
@@ -65,6 +65,7 @@ def evaluate_downstream(
                  bootstrap_unit}}
     """
     from sklearn.metrics import average_precision_score, roc_auc_score
+
     from lhfm.utils.metrics import bootstrap_ci
 
     model = model.to(device).eval()
@@ -156,7 +157,7 @@ def _flatten_windows(X: np.ndarray) -> np.ndarray:
     and slope across time, which is enough to beat a naive baseline by a
     comfortable margin without doing anything sequence-aware.
     """
-    B, T, F = X.shape
+    _B, T, _F = X.shape
     means = X.mean(axis=1)
     stds = X.std(axis=1)
     last = X[:, -1, :]

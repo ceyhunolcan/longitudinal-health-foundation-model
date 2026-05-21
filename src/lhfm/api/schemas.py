@@ -9,7 +9,6 @@ research prototype.
 from __future__ import annotations
 
 from datetime import date
-from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -26,34 +25,34 @@ class DailyRecord(BaseModel):
     date: date
 
     # Wearable
-    daily_steps: Optional[float] = None
-    sleep_duration: Optional[float] = Field(None, description="hours")
-    sleep_efficiency: Optional[float] = None
-    resting_hr: Optional[float] = None
-    hrv_rmssd: Optional[float] = Field(None, description="ms")
-    stress_score: Optional[float] = None
+    daily_steps: float | None = None
+    sleep_duration: float | None = Field(None, description="hours")
+    sleep_efficiency: float | None = None
+    resting_hr: float | None = None
+    hrv_rmssd: float | None = Field(None, description="ms")
+    stress_score: float | None = None
 
     # Smartphone
-    phone_unlock_count: Optional[float] = None
-    screen_time_minutes: Optional[float] = None
-    mobility_radius_km: Optional[float] = None
-    location_entropy: Optional[float] = None
+    phone_unlock_count: float | None = None
+    screen_time_minutes: float | None = None
+    mobility_radius_km: float | None = None
+    location_entropy: float | None = None
 
     # EMA / self-report
-    survey_mood: Optional[float] = Field(None, ge=1.0, le=7.0)
-    survey_energy: Optional[float] = Field(None, ge=1.0, le=7.0)
-    survey_stress: Optional[float] = Field(None, ge=1.0, le=7.0)
+    survey_mood: float | None = Field(None, ge=1.0, le=7.0)
+    survey_energy: float | None = Field(None, ge=1.0, le=7.0)
+    survey_stress: float | None = Field(None, ge=1.0, le=7.0)
 
     # Environmental
-    temperature_c: Optional[float] = None
-    humidity: Optional[float] = Field(None, ge=0.0, le=100.0)
-    aqi: Optional[float] = Field(None, ge=0.0, le=500.0)
-    heat_index: Optional[float] = None
+    temperature_c: float | None = None
+    humidity: float | None = Field(None, ge=0.0, le=100.0)
+    aqi: float | None = Field(None, ge=0.0, le=500.0)
+    heat_index: float | None = None
 
     # Optional explicit missingness flags (0/1)
-    missing_wearable_flag: Optional[int] = None
-    missing_phone_flag: Optional[int] = None
-    missing_survey_flag: Optional[int] = None
+    missing_wearable_flag: int | None = None
+    missing_phone_flag: int | None = None
+    missing_survey_flag: int | None = None
 
 
 class ParticipantProfile(BaseModel):
@@ -116,4 +115,4 @@ class PredictResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     model_loaded: bool
-    encoder_d_model: Optional[int] = None
+    encoder_d_model: int | None = None

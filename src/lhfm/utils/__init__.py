@@ -21,19 +21,19 @@ from .metrics import (
 )
 
 __all__ = [
-    "load_config",
-    "resolve_device",
-    "set_global_seed",
-    "get_logger",
+    "CLIMATE_REGIMES",
     "binary_classification_report",
     "bootstrap_ci",
-    "expected_calibration_error",
-    "reliability_curve",
-    "run_fairness_audit",
-    "fairness_report_to_csv",
     "check_fairness_thresholds",
-    "CLIMATE_REGIMES",
     "define_climate_regime",
+    "expected_calibration_error",
+    "fairness_report_to_csv",
+    "get_logger",
+    "load_config",
     "regime_summary",
+    "reliability_curve",
+    "resolve_device",
+    "run_fairness_audit",
+    "set_global_seed",
     "split_train_eval_by_regime",
 ]

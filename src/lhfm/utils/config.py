@@ -14,7 +14,6 @@ from typing import Any
 import numpy as np
 import yaml
 
-
 # Resolve the project root once. Every other path in the repo is relative to
 # this, which is what keeps the project portable between laptops and Docker.
 # With the src-layout (lhfm lives at src/lhfm/) we have to go up an extra

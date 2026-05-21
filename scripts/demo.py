@@ -53,7 +53,7 @@ def main() -> int:
     args = p.parse_args()
 
     print("LHFM 60-second demo")
-    print(f"  config: {args.participants} participants × {args.days} days, "
+    print(f"  config: {args.participants} participants x {args.days} days, "
           f"seed={args.seed}")
     print(f"          ssl_epochs={args.ssl_epochs}, downstream_epochs={args.epochs}")
     t0 = time.time()
@@ -67,7 +67,7 @@ def main() -> int:
         seed=args.seed,
     )
     print(f"  {len(raw)} rows, {raw['participant_id'].nunique()} participants")
-    print(f"  modalities present: wearable + smartphone + EMA + climate")
+    print("  modalities present: wearable + smartphone + EMA + climate")
     print(f"  elapsed: {time.time() - t0:.1f}s")
 
     # ---- features ------------------------------------------------------
@@ -75,7 +75,7 @@ def main() -> int:
     from lhfm.features import build_full_feature_table
     feat = build_full_feature_table(raw, impute=True, add_targets=True)
     target_cols = [c for c in feat.columns if c.startswith("target_")]
-    print(f"  feature table: {feat.shape[0]} rows × {feat.shape[1]} columns")
+    print(f"  feature table: {feat.shape[0]} rows x {feat.shape[1]} columns")
     print("  task          positive_rate  n_labelled")
     for t in target_cols:
         vals = feat[t].dropna()
@@ -91,6 +91,8 @@ def main() -> int:
         print("  pip install torch (or `make install-cpu-torch`) and retry.")
         return 0
 
+    import numpy as np
+
     from lhfm.data.preprocessing import (
         build_windows,
         train_val_test_split_by_participant,
@@ -104,7 +106,6 @@ def main() -> int:
     from lhfm.training.train_downstream import train_downstream
     from lhfm.training.train_ssl import pretrain_ssl
     from lhfm.utils.config import resolve_device, set_global_seed
-    import numpy as np
 
     set_global_seed(args.seed)
     device = resolve_device("cpu")
@@ -146,7 +147,7 @@ def main() -> int:
         long["date"] = __import__("pandas").to_datetime(long["date"])
         long = long.set_index(["participant_id", "date"])
         Y = np.full((X.shape[0], len(target_cols)), np.nan, dtype=np.float32)
-        for j, key in enumerate(zip(pids.tolist(), target_dates)):
+        for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
             try:
                 row = long.loc[key]
                 for i, col in enumerate(target_cols):
@@ -222,7 +223,7 @@ def main() -> int:
         batch_size=32,
         bootstrap_resamples=300,
     )
-    print(f"  task              AUROC      95% CI            AUPRC   ECE     n_test")
+    print("  task              AUROC      95% CI            AUPRC   ECE     n_test")
     for task, r in results.items():
         ci = r.get("auroc_ci", (float("nan"), float("nan")))
         print(f"    {task:18s} {r['auroc']:.3f}    "

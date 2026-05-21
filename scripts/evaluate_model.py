@@ -31,17 +31,17 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
-from lhfm.data.preprocessing import (                                # noqa: E402
-    build_windows, train_val_test_split_by_participant,
+from lhfm.data.preprocessing import (
+    build_windows,
+    train_val_test_split_by_participant,
 )
-from lhfm.features.baseline_features import (                        # noqa: E402
+from lhfm.features.baseline_features import (
     compute_baseline_features as _cbf,
 )
-from lhfm.training.dataset import LongitudinalWindowDataset          # noqa: E402
-from lhfm.training.evaluate import evaluate_downstream, save_results_table  # noqa: E402
-from lhfm.utils.config import load_config, resolve_device, set_global_seed  # noqa: E402
-from lhfm.utils.logging import get_logger                            # noqa: E402
-
+from lhfm.training.dataset import LongitudinalWindowDataset
+from lhfm.training.evaluate import evaluate_downstream, save_results_table
+from lhfm.utils.config import load_config, resolve_device, set_global_seed
+from lhfm.utils.logging import get_logger
 
 log = get_logger("evaluate")
 
@@ -87,8 +87,9 @@ def main() -> int:
 
     # Reconstruct the model.
     import torch
-    from lhfm.models.encoder import MultimodalLongitudinalEncoder
+
     from lhfm.models.downstream import DownstreamRiskModel
+    from lhfm.models.encoder import MultimodalLongitudinalEncoder
     encoder = MultimodalLongitudinalEncoder(
         modality_dims={k: int(v) for k, v in meta["modality_dims"].items()},
         d_model=int(meta["d_model"]),
@@ -166,7 +167,7 @@ def main() -> int:
     long["date"] = pd.to_datetime(long["date"])
     long = long.set_index(["participant_id", "date"])
     Y = np.full((X.shape[0], len(task_names)), np.nan, dtype=np.float32)
-    for j, key in enumerate(zip(pids.tolist(), target_dates)):
+    for j, key in enumerate(zip(pids.tolist(), target_dates, strict=False)):
         try:
             row = long.loc[key]
             for i, col in enumerate(target_cols):

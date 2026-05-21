@@ -15,16 +15,13 @@ single-participant inference before the model has been fit) doesn't crash.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 
-from .wearable_features import compute_wearable_features
-from .smartphone_features import compute_smartphone_features
 from .climate_features import compute_climate_features
 from .missingness_features import compute_missingness_features
-
+from .smartphone_features import compute_smartphone_features
+from .wearable_features import compute_wearable_features
 
 _CHRONOTYPE_MAP = {"morning": -1.0, "intermediate": 0.0, "evening": 1.0}
 
@@ -62,8 +59,8 @@ def fit_baseline_reference_stats(train_df: pd.DataFrame) -> dict[str, float]:
 
 def compute_baseline_features(
     df: pd.DataFrame,
-    age_ref_mean: Optional[float] = None,
-    age_ref_std: Optional[float] = None,
+    age_ref_mean: float | None = None,
+    age_ref_std: float | None = None,
 ) -> pd.DataFrame:
     """Add baseline / personal-context features.
 
@@ -92,8 +89,8 @@ def build_full_feature_table(
     df: pd.DataFrame,
     impute: bool = True,
     add_targets: bool = True,
-    age_ref_mean: Optional[float] = None,
-    age_ref_std: Optional[float] = None,
+    age_ref_mean: float | None = None,
+    age_ref_std: float | None = None,
 ) -> pd.DataFrame:
     """One-call pipeline: raw long-form -> fully engineered feature table.
 
@@ -126,7 +123,10 @@ def build_full_feature_table(
         out = binarize_targets(out)
 
     if impute:
-        from lhfm.data.preprocessing import forward_fill_within_participant, impute_remaining_numeric
+        from lhfm.data.preprocessing import (
+            forward_fill_within_participant,
+            impute_remaining_numeric,
+        )
         numeric = out.select_dtypes(include=[np.number]).columns.tolist()
         target_cols = [c for c in out.columns if c.startswith("target_")]
         fill_cols = [c for c in numeric if c not in target_cols
