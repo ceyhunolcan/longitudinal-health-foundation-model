@@ -47,6 +47,47 @@ medians, falling back to cohort medians. Splits are constructed at the
 **participant** level (default 70/15/15) to prevent within-person leakage
 across train, validation, and test sets.
 
+### 1.3 Real-data cohorts and the adapter abstraction
+
+The same model and training code are used unmodified on real data. The
+key affordance is a thin **adapter abstraction**
+(`src/lhfm/data/adapters/base.py`) that ingests a raw cohort directory
+and emits a per-day dataframe in the schema the rest of the pipeline
+expects: one row per `(participant_id, date)`, the union of expected
+columns across wearable / smartphone / EMA / climate, and standard
+sentinel handling for missing modalities. Three adapters are provided:
+
+- `SyntheticAdapter`, a thin wrapper over the in-memory generator.
+- `LifeSnapsAdapter`, which reads the public LifeSnaps "RAIS" release
+  (Yfantidou et al. 2022) from Kaggle / Zenodo and emits the same
+  per-day schema. The adapter handles real-world quirks of this
+  release: age stored as range strings (`"<30"`, `"30-40"`), sex
+  stored as full words (`"MALE"`, `"FEMALE"`, `"NB"`), sleep duration
+  stored in milliseconds (the adapter detects the unit by inspecting
+  the median and converts to hours), and SEMA emotion reports encoded
+  as per-emotion one-hots (HAPPY, SAD, TIRED, ALERT, TENSE/ANXIOUS,
+  RESTED/RELAXED, NEUTRAL), which the adapter collapses into the
+  three-axis 1-7 valence / energy / stress scores used downstream.
+- `GlobemAdapter`, which targets the GLOBEM longitudinal cohort
+  (Xu et al. 2022, NeurIPS Datasets track). Implementation is staged;
+  results pending credentialed access via PhysioNet.
+
+When a cohort is missing entire modalities (LifeSnaps has no smartphone
+sensing and no climate enrichment), the adapter sets the corresponding
+columns to `NaN` and surfaces a *modality-missing flag*. The feature
+engineering and model code treat these flags as first-class input,
+which means a cohort can be evaluated even when it covers only a subset
+of the modalities the model was pretrained on; the downstream heads
+simply receive a zero-padded representation for the missing modality.
+
+No participant-level data from real cohorts is redistributed in this
+repository. Only aggregate metrics (per-task AUROC, AUPRC, ECE, Brier
+score, baseline comparisons) and a small number of headline figures
+(calibration plot, confusion matrix) are committed; row-level
+predictions, raw cohort files, and per-participant attribution traces
+are explicitly gitignored. This is enforced by `.gitignore` rules and
+documented in the data-use compliance note of each adapter.
+
 ## 2. Feature engineering
 
 Five feature modules produce a 25-dimensional per-day feature vector:
@@ -256,6 +297,15 @@ linear slope across the 14-day window):
 - Random forest with 300 trees and balanced class weights
 - XGBoost with `scale_pos_weight = #neg / #pos`, skipped gracefully if the
   package is not installed.
+
+These baselines are run on every cohort the LHFM encoder is evaluated
+on, with the same train/val/test participant splits and the same
+held-out test bootstrap procedure. Their purpose is to isolate the
+contribution of the self-supervised representation from the
+contribution of the feature engineering: a fair comparison must give
+the classical baseline the same engineered features the encoder sees.
+LifeSnaps and (forthcoming) GLOBEM results report this comparison
+side-by-side in the Results section.
 
 ## 9. Limitations
 
