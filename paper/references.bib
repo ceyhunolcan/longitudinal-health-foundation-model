@@ -1,8 +1,8 @@
 % Bibliography for LHFM paper draft.
 % Entries below correspond to citations in paper/introduction.md,
 % paper/methods.md, paper/results_lifesnaps.md, paper/results_globem.md,
-% and paper/discussion.md. <<TODO>> markers in those files should
-% resolve to the cite keys here.
+% and paper/discussion.md. Inline TODO markers in those files
+% should be resolved to the cite keys defined here.
 %
 % This file is hand-edited; verify each entry against the DOI / arXiv
 % record before submission. Several entries below are best-effort
@@ -79,28 +79,30 @@
 % Wearable / smartphone foundation models (2023-2025)
 % ============================================================
 
-@article{narayanswamy2024applefm,
-  title   = {Scaling Wearable Foundation Models},
-  author  = {Narayanswamy, Girish and Liu, Xin and Ayush, Kumar and Yang, Yuzhe and Xu, Xuhai and Liao, Shun and Garrison, Jake and Tailor, Shyam and Sunshine, Jeff and Liu, Yun and others},
-  journal = {arXiv preprint arXiv:2410.13638},
-  year    = {2024},
-  note    = {<<TODO: verify ref details before submission>>},
+@inproceedings{narayanswamy2025lsm,
+  title     = {Scaling Wearable Foundation Models},
+  author    = {Narayanswamy, Girish and Liu, Xin and Ayush, Kumar and Yang, Yuzhe and Xu, Xuhai and Liao, Shun and Garrison, Jake and Tailor, Shyam and Sunshine, Jacob and Liu, Yun and Althoff, Tim and Narayanan, Shrikanth and Kohli, Pushmeet and Zhan, Jiening and Malhotra, Mark and Patel, Shwetak and Abdel-Ghaffar, Samy and McDuff, Daniel},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2025},
+  note      = {Google Research / Google DeepMind. The Large Sensor Model (LSM). arXiv:2410.13638.},
 }
 
-@article{abbaspourazad2024phm,
+@article{abbaspourazad2023biosignals,
   title   = {Large-scale Training of Foundation Models for Wearable Biosignals},
   author  = {Abbaspourazad, Salar and Elachqar, Oussama and Miller, Andrew C. and Emrani, Saba and Nallasamy, Udhyakumar and Shapiro, Ian},
   journal = {arXiv preprint arXiv:2312.05409},
-  year    = {2024},
-  note    = {<<TODO: verify>>},
+  year    = {2023},
+  note    = {Apple. Self-supervised PPG/ECG foundation models trained on the Apple Heart and Movement Study (AHMS).},
 }
 
-@article{saeed2023multimodal,
-  title   = {Multimodal Self-Supervised Learning for Wearable Time Series in Behavioral Health},
-  author  = {Saeed, Aaqib and Trajanovski, Stojan and van Keulen, Maurice},
-  journal = {<<TODO: confirm venue>>},
-  year    = {2023},
-  note    = {<<TODO: this entry is approximate; verify before submission>>},
+@inproceedings{spathis2021selfsup,
+  title     = {Self-supervised transfer learning of physiological representations from free-living wearable data},
+  author    = {Spathis, Dimitris and Perez-Pozuelo, Ignacio and Brage, Soren and Wareham, Nicholas J. and Mascolo, Cecilia},
+  booktitle = {Proceedings of the ACM Conference on Health, Inference, and Learning (CHIL)},
+  pages     = {69--78},
+  year      = {2021},
+  doi       = {10.1145/3450439.3451863},
+  note      = {Multimodal SSL (accelerometer + heart rate) on the largest free-living wearable cohort to date. arXiv:2011.12121.},
 }
 
 % ============================================================
@@ -140,12 +142,15 @@
   doi     = {10.1038/s41558-018-0222-x},
 }
 
-@article{doerr2018heat,
-  title   = {<<TODO: placeholder for a heat-exposure / HRV citation; verify and replace>>},
-  author  = {Doerr, J. M. and others},
-  journal = {<<TODO>>},
-  year    = {2018},
-  note    = {Used in introduction to cite the documented effect of heat on HRV. Confirm exact paper.},
+@article{li2023temperaturehrv,
+  title   = {Hourly personal temperature exposure and heart rate variability: A multi-center panel study in populations at intermediate to high-risk of cardiovascular disease},
+  author  = {Li, Hongfan and Ma, Han and Li, Jinyue and Li, Xiahua and Huang, Keyong and Cao, Jie and Li, Jianxin and Yan, Weili and Chen, Xiaotian and Zhou, Xiaoyang and Cui, Chun and Yu, Xianglai and Liu, Fangchao and Huang, Jianfeng},
+  journal = {Science of the Total Environment},
+  volume  = {863},
+  pages   = {160983},
+  year    = {2023},
+  doi     = {10.1016/j.scitotenv.2022.160983},
+  note    = {Documents inverse association between personal temperature exposure and hourly HRV across n=296 participants in 4 Chinese cities with repeated visits.},
 }
 
 % ============================================================
