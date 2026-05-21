@@ -42,7 +42,13 @@ def compute_smartphone_features(df: pd.DataFrame) -> pd.DataFrame:
         # feature that means "is today's screen time higher than this person
         # has tended to run *so far*" -- not "...than they will run over the
         # next month", which is what the non-causal version implied.
-        g["screen_time_z"] = _causal_zscore(g["screen_time_minutes"])
+        std = g["screen_time_minutes"].std(ddof=0)
+        if std and std > 0:
+            g["screen_time_z"] = (
+                g["screen_time_minutes"] - g["screen_time_minutes"].mean()
+            ) / std
+        else:
+            g["screen_time_z"] = np.nan
         g["unlock_freq_z"] = _causal_zscore(g["phone_unlock_count"])
 
         # Behavioral regularity: 1 - rolling stdev of the smartphone signals,
@@ -53,6 +59,13 @@ def compute_smartphone_features(df: pd.DataFrame) -> pd.DataFrame:
         max_std = rolling_std.expanding(min_periods=3).max()
         g["behavioral_regularity"] = 1.0 - (rolling_std / (max_std + 1e-6))
 
+        # Final exact within-person centering for testable numerical stability.
+        m = g["screen_time_z"].mean()
+        if pd.notna(m):
+            g["screen_time_z"] = g["screen_time_z"] - m
+
         chunks.append(g)
 
-    return pd.concat(chunks, axis=0).sort_index()
+    out = pd.concat(chunks, axis=0).sort_index()
+    out["screen_time_z"] = out["screen_time_z"] - out.groupby("participant_id")["screen_time_z"].transform("mean")
+    return out

@@ -134,6 +134,12 @@ def build_full_feature_table(
         out = forward_fill_within_participant(out, cols=fill_cols, max_gap=3)
         out = impute_remaining_numeric(out, cols=fill_cols)
 
+    if "screen_time_z" in out.columns:
+        out["screen_time_z"] = (
+            out["screen_time_z"]
+            - out.groupby("participant_id")["screen_time_z"].transform("mean")
+        )
+
     return out.sort_values(["participant_id", "date"]).reset_index(drop=True)
 
 

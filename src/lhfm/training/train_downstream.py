@@ -218,6 +218,9 @@ def train_downstream(
                          epoch + 1, best_score)
                 break
 
+    if checkpoint_path is not None:
+        _save_checkpoint(model, checkpoint_path)
+
     return DownstreamTrainState(
         model=model, train_losses=train_losses,
         val_losses=val_losses, val_metrics=val_metrics,
