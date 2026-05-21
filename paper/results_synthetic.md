@@ -34,16 +34,16 @@ participant level with 1,000 iterations.
 
 | Task                  | Model           | AUROC | 95% CI            | AUPRC | n_pos | n_total |
 | :-------------------- | :-------------- | ----: | :---------------- | ----: | ----: | ------: |
-| `low_mood`            | LHFM            | 0.752 | [0.691, 0.814]     | 0.673 | 647   | 1819    |
+| `low_mood`            | LHFM            | 0.743 | [0.684, 0.804]     | 0.678 | 647   | 1819    |
 | `low_mood`            | Logistic regr.  | **0.817** | –              | 0.759 | 647   | 1819    |
 | `low_mood`            | Random forest   | 0.807 | –                  | 0.749 | 647   | 1819    |
-| `high_stress`         | LHFM            | 0.604 | [0.504, 0.708]     | 0.451 | 625   | 1819    |
+| `high_stress`         | LHFM            | 0.580 | [0.481, 0.682]     | 0.438 | 625   | 1819    |
 | `high_stress`         | Logistic regr.  | 0.672 | –                  | 0.568 | 625   | 1819    |
 | `high_stress`         | Random forest   | **0.674** | –              | 0.571 | 625   | 1819    |
-| `sleep_disruption`    | LHFM            | 0.596 | [0.500, 0.680]     | 0.212 | 334   | 2426    |
+| `sleep_disruption`    | LHFM            | 0.625 | [0.573, 0.682]     | 0.219 | 334   | 2426    |
 | `sleep_disruption`    | Logistic regr.  | 0.720 | –                  | 0.440 | 334   | 2426    |
 | `sleep_disruption`    | Random forest   | **0.747** | –              | 0.424 | 334   | 2426    |
-| `climate_vulnerable`  | LHFM            | 0.937 | [0.914, 0.957]     | 0.382 | 94    | 2426    |
+| `climate_vulnerable`  | LHFM            | 0.936 | [0.917, 0.953]     | 0.340 | 94    | 2426    |
 | `climate_vulnerable`  | Logistic regr.  | 0.833 | –                  | 0.154 | 94    | 2426    |
 | `climate_vulnerable`  | Random forest   | **0.948** | –              | 0.315 | 94    | 2426    |
 
@@ -68,10 +68,10 @@ delivery are out of the experimenter's control.
 
 **Classical baselines outperform LHFM on all four synthetic tasks.**
 Logistic regression and random forest exceed LHFM by approximately
-6.5 AUROC points on `low_mood`, 7 points on `high_stress`, and
-12-15 points on `sleep_disruption`. On `climate_vulnerable`, where
-LHFM achieves the highest absolute AUROC of the four (0.937, 95 %
-CI [0.914, 0.957]), random forest narrowly exceeds it (0.948). This
+7 AUROC points on `low_mood`, 9 points on `high_stress`, and 10-12
+points on `sleep_disruption`. On `climate_vulnerable`, where LHFM
+achieves the highest absolute AUROC of the four (0.936, 95 % CI
+[0.917, 0.953]), random forest narrowly exceeds it (0.948). This
 is the inverse of the LifeSnaps result, where LHFM exceeded the
 same classical baselines on `high_stress` by approximately 20 AUROC
 points. We report both directions of comparison in the same table
@@ -96,25 +96,22 @@ favour. The honest reading of Table 1 against the LifeSnaps result
 not universal; it emerges from the kind of heterogeneity real
 cohorts exhibit and synthetic data, by construction, does not.**
 
-A second factor affecting the synthetic comparison is a
-multi-task best-checkpoint subtlety in the training pipeline. The
-trainer's early-stopping signal is the *primary* task's validation
-AUROC (the first task in the configured list, `low_mood` on this
-cohort). The remaining heads share the same encoder and may peak at
-different epochs; on the synthetic run logged at run-tag
-`synthetic_paper`, the `climate_vulnerable` head's validation AUROC
-climbed from 0.67 at epoch 1 to 0.94 at epoch 6, but training
-halted at epoch 6 because `low_mood`'s validation AUROC had not
-improved past its epoch-1 value of 0.758. The reported test
-numbers in Table 1 reflect the epoch-1 checkpoint for the non-
-primary heads, which understates their per-task best performance.
-On LifeSnaps this is the right design choice — only one task was
-evaluable — but on a multi-task synthetic cohort the conservative
-side-effect is visible. A per-task best-checkpoint variant is the
-straightforward fix and is documented as a planned trainer
-extension; we leave it out of the present comparison because
-selectively maximising each head's checkpoint is the kind of
-post-hoc choice we want the comparison to remain free of.
+The trainer's early-stopping signal on a multi-task cohort is the
+*mean* of validation AUROC over the tasks that have at least one
+positive in the validation fold; on cohorts with a single
+evaluable task (e.g. LifeSnaps with only `high_stress` evaluable)
+this reduces to single-task tracking. The synthetic run reported
+in Table 1 (run-tag `synthetic_paper_v2`) early-stopped at
+downstream epoch 11 with mean-over-tasks validation AUROC 0.734,
+having let `sleep_disruption` and `climate_vulnerable` train past
+the epoch at which `low_mood`'s validation AUROC alone peaked.
+This avoids a confound that the earlier primary-task-only signal
+introduced: on a cohort where the four heads converge at
+different rates, the saved checkpoint must not be the one that
+maximises only the first-listed task's metric. We do not, however,
+select per-task best checkpoints. The reported numbers therefore
+reflect a single shared encoder evaluated on all four heads, which
+is the regime a downstream user would actually deploy.
 
 The synthetic result is therefore not the headline empirical claim
 of this work; the LifeSnaps result (§Results, LifeSnaps) and the

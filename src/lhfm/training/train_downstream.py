@@ -132,10 +132,14 @@ def train_downstream(
     val_losses: list[float] = []
     val_metrics: list[dict] = []
 
-    # Track the primary task's val AUROC (higher = better), not the
-    # aggregate val_loss, because heads with no positives in training (e.g.
-    # low_mood on Fitbit-only cohorts) produce uselessly-low losses that
-    # dominate the aggregate and trigger spurious early stopping.
+    # Track val-AUROC averaged over evaluable tasks. NaN aurocs (tasks with
+    # all-zero validation labels) are dropped; if no task is evaluable we
+    # fall back to the primary task alone. This makes the saved encoder
+    # the one that best serves *the multi-task average* rather than any
+    # single head, which was the behaviour before this patch and tended to
+    # halt training while non-primary heads were still improving (visible
+    # on the synthetic_paper run, where climate_vulnerable val AUROC
+    # climbed from 0.67 to 0.94 across epochs 1-6 while low_mood plateaued).
     primary_task = task_names[0] if task_names else None
     best_score = float("-inf")
     patience = 0
@@ -188,10 +192,20 @@ def train_downstream(
                      for k, v in metric_summary.items()),
         )
 
-        # Score = primary task's val AUROC. NaN (e.g. all-zero labels in val
-        # fold) is treated as -inf so it never wins.
-        primary_auroc = metric_summary.get(primary_task, {}).get("auroc", float("nan")) if primary_task else float("nan")
-        track = primary_auroc if primary_auroc == primary_auroc else float("-inf")  # NaN-safe
+        # Score = mean val AUROC across tasks with at least one positive in
+        # the validation fold (i.e. AUROC is well-defined). NaN-safe.
+        aurocs = []
+        for t in task_names:
+            a = metric_summary.get(t, {}).get("auroc", float("nan"))
+            if a == a:  # not NaN
+                aurocs.append(a)
+        if aurocs:
+            track = sum(aurocs) / len(aurocs)
+        else:
+            # Fallback: no task evaluable on val. Use primary if it has any
+            # value at all, else -inf.
+            primary_auroc = metric_summary.get(primary_task, {}).get("auroc", float("nan")) if primary_task else float("nan")
+            track = primary_auroc if primary_auroc == primary_auroc else float("-inf")
         if track > best_score + 1e-6:
             best_score = track
             patience = 0
@@ -200,8 +214,8 @@ def train_downstream(
         else:
             patience += 1
             if patience >= early_stopping_patience:
-                log.info("early stopping at epoch %d (best %s val AUROC=%.3f)",
-                         epoch + 1, primary_task, best_score)
+                log.info("early stopping at epoch %d (best mean-over-tasks val AUROC=%.3f)",
+                         epoch + 1, best_score)
                 break
 
     return DownstreamTrainState(
