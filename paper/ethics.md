@@ -34,9 +34,16 @@ this reason.
 
 ## Algorithmic bias
 
-The synthetic cohort was not stratified by race, ethnicity, gender
-identity, socioeconomic status, or geography. The model therefore has no
-mechanism to surface or be audited against subgroup disparities. Anyone
+The v0.2 synthetic generator attaches stratification metadata
+(race/ethnicity, region, SES proxy, device generation, depression
+and anxiety flags, age band) to each simulated participant so that
+audit tooling can be developed and exercised against the synthetic
+pipeline. However, these labels are not guaranteed independent of
+the generator's seeded outcome distributions: for example, anxious
+participants carry a higher stress setpoint by construction. Any
+subgroup disparity observed on this cohort therefore conflates the
+encoder's learned behaviour with the generator's priors, and
+should not be interpreted as a real-world fairness signal. Anyone
 moving to real data must:
 
 - include subgroup metadata,

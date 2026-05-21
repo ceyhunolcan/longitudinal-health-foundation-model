@@ -1,0 +1,237 @@
+{
+  "audited_checkpoint": "/Users/ceyhun/longitudinal-health-foundation-model/checkpoints/downstream.pt",
+  "split": "test",
+  "threshold": 0.5,
+  "tasks": {
+    "low_mood": {
+      "n_subgroups_audited": 23,
+      "n_subgroups_skipped_small": 0,
+      "ok": false,
+      "violations": [
+        "AUROC spread on race_ethnicity = 0.193 exceeds threshold 0.100 (levels: [0.6836614524475109, 0.7206022489041358, 0.8233830845771144, 0.84, 0.8762598328416914])",
+        "AUROC spread on has_depression = 0.134 exceeds threshold 0.100 (levels: [0.7368085530620669, 0.8703703703703705])",
+        "AUROC spread on age_band = 0.156 exceeds threshold 0.100 (levels: [0.7035337211807801, 0.716235005011802, 0.8099122807017544, 0.8595652173913043])",
+        "equalised-odds violation on race_ethnicity = 0.999 (FPR gap 0.575 + FNR gap 0.424) exceeds threshold 0.200",
+        "equalised-odds violation on ses_proxy = 0.344 (FPR gap 0.174 + FNR gap 0.170) exceeds threshold 0.200",
+        "equalised-odds violation on has_depression = 0.462 (FPR gap 0.269 + FNR gap 0.192) exceeds threshold 0.200",
+        "equalised-odds violation on age_band = 0.465 (FPR gap 0.196 + FNR gap 0.270) exceeds threshold 0.200"
+      ],
+      "equalised_odds_gap": {
+        "sex": {
+          "max_fpr_gap": 0.1332820082120194,
+          "max_fnr_gap": 0.011016055314660711,
+          "equalised_odds_violation": 0.14429806352668012
+        },
+        "race_ethnicity": {
+          "max_fpr_gap": 0.5748249900937789,
+          "max_fnr_gap": 0.42424242424242425,
+          "equalised_odds_violation": 0.999067414336203
+        },
+        "ses_proxy": {
+          "max_fpr_gap": 0.17383351997013807,
+          "max_fnr_gap": 0.17039777983348753,
+          "equalised_odds_violation": 0.3442312998036256
+        },
+        "region": {
+          "max_fpr_gap": 0.06899023235656898,
+          "max_fnr_gap": 0.08361107918630045,
+          "equalised_odds_violation": 0.15260131154286943
+        },
+        "device_gen": {
+          "max_fpr_gap": 0.0305987718834963,
+          "max_fnr_gap": 0.01468617845329312,
+          "equalised_odds_violation": 0.04528495033678942
+        },
+        "has_depression": {
+          "max_fpr_gap": 0.26929702511097864,
+          "max_fnr_gap": 0.1923076923076923,
+          "equalised_odds_violation": 0.46160471741867093
+        },
+        "has_anxiety": {
+          "max_fpr_gap": 0.007475538160469641,
+          "max_fnr_gap": 0.12621865852106404,
+          "equalised_odds_violation": 0.13369419668153368
+        },
+        "age_band": {
+          "max_fpr_gap": 0.1955229604064807,
+          "max_fnr_gap": 0.26956521739130435,
+          "equalised_odds_violation": 0.46508817779778505
+        }
+      }
+    },
+    "high_stress": {
+      "n_subgroups_audited": 23,
+      "n_subgroups_skipped_small": 0,
+      "ok": false,
+      "violations": [
+        "AUROC spread on sex = 0.215 exceeds threshold 0.100 (levels: [0.4894157826040021, 0.7047187416688884])",
+        "AUROC spread on race_ethnicity = 0.292 exceeds threshold 0.100 (levels: [0.3996387305739823, 0.5802606484424666, 0.5850202429149798, 0.6621218502902748, 0.6916666666666667])",
+        "AUROC spread on ses_proxy = 0.100 exceeds threshold 0.100 (levels: [0.540395846852693, 0.5580543236195443, 0.640891451567903])",
+        "AUROC spread on region = 0.137 exceeds threshold 0.100 (levels: [0.5552873129636615, 0.6810778028071391, 0.6925176056338027])",
+        "AUROC spread on device_gen = 0.123 exceeds threshold 0.100 (levels: [0.4945689822383552, 0.6174254745695764])",
+        "AUROC spread on has_depression = 0.148 exceeds threshold 0.100 (levels: [0.5750583227838063, 0.7229166666666667])",
+        "AUROC spread on has_anxiety = 0.300 exceeds threshold 0.100 (levels: [0.6572735916954291, 0.956825657894737])",
+        "AUROC spread on age_band = 0.407 exceeds threshold 0.100 (levels: [0.45646113780581743, 0.6484889120663537, 0.6922731234339253, 0.8631857237276933])",
+        "equalised-odds violation on sex = 0.320 (FPR gap 0.091 + FNR gap 0.229) exceeds threshold 0.200",
+        "equalised-odds violation on race_ethnicity = 1.306 (FPR gap 0.680 + FNR gap 0.626) exceeds threshold 0.200",
+        "equalised-odds violation on ses_proxy = 0.389 (FPR gap 0.220 + FNR gap 0.169) exceeds threshold 0.200",
+        "equalised-odds violation on region = 0.680 (FPR gap 0.308 + FNR gap 0.372) exceeds threshold 0.200",
+        "equalised-odds violation on device_gen = 0.292 (FPR gap 0.167 + FNR gap 0.125) exceeds threshold 0.200",
+        "equalised-odds violation on has_depression = 0.501 (FPR gap 0.315 + FNR gap 0.186) exceeds threshold 0.200",
+        "equalised-odds violation on has_anxiety = 0.615 (FPR gap 0.331 + FNR gap 0.284) exceeds threshold 0.200",
+        "equalised-odds violation on age_band = 0.755 (FPR gap 0.337 + FNR gap 0.418) exceeds threshold 0.200"
+      ],
+      "equalised_odds_gap": {
+        "sex": {
+          "max_fpr_gap": 0.09091470344750169,
+          "max_fnr_gap": 0.22896596017983306,
+          "equalised_odds_violation": 0.31988066362733475
+        },
+        "race_ethnicity": {
+          "max_fpr_gap": 0.6800169527442255,
+          "max_fnr_gap": 0.6255060728744939,
+          "equalised_odds_violation": 1.3055230256187194
+        },
+        "ses_proxy": {
+          "max_fpr_gap": 0.21980430355087224,
+          "max_fnr_gap": 0.16885200167387365,
+          "equalised_odds_violation": 0.3886563052247459
+        },
+        "region": {
+          "max_fpr_gap": 0.3081593006313744,
+          "max_fnr_gap": 0.37164991624790616,
+          "equalised_odds_violation": 0.6798092168792806
+        },
+        "device_gen": {
+          "max_fpr_gap": 0.166646868410893,
+          "max_fnr_gap": 0.12521950267739068,
+          "equalised_odds_violation": 0.29186637108828367
+        },
+        "has_depression": {
+          "max_fpr_gap": 0.31468804159445407,
+          "max_fnr_gap": 0.1859400998336106,
+          "equalised_odds_violation": 0.5006281414280647
+        },
+        "has_anxiety": {
+          "max_fpr_gap": 0.33136593591905567,
+          "max_fnr_gap": 0.28408345630431214,
+          "equalised_odds_violation": 0.6154493922233678
+        },
+        "age_band": {
+          "max_fpr_gap": 0.33690349558009025,
+          "max_fnr_gap": 0.4176909569798069,
+          "equalised_odds_violation": 0.7545944525598971
+        }
+      }
+    },
+    "sleep_disruption": {
+      "n_subgroups_audited": 23,
+      "n_subgroups_skipped_small": 0,
+      "ok": false,
+      "violations": [
+        "AUROC spread on race_ethnicity = 0.143 exceeds threshold 0.100 (levels: [0.624157339167003, 0.635721787839888, 0.6728316326530612, 0.7131739228513423, 0.7676107480029049])",
+        "AUROC spread on has_depression = 0.241 exceeds threshold 0.100 (levels: [0.4025866813428729, 0.6433977755699067])",
+        "AUROC spread on age_band = 0.120 exceeds threshold 0.100 (levels: [0.5812837639586461, 0.6273894941978918, 0.6995659512900892, 0.701507049100632])",
+        "equalised-odds violation on race_ethnicity = 0.802 (FPR gap 0.288 + FNR gap 0.514) exceeds threshold 0.200",
+        "equalised-odds violation on ses_proxy = 0.250 (FPR gap 0.056 + FNR gap 0.194) exceeds threshold 0.200",
+        "equalised-odds violation on region = 0.322 (FPR gap 0.153 + FNR gap 0.169) exceeds threshold 0.200",
+        "equalised-odds violation on has_depression = 0.318 (FPR gap 0.022 + FNR gap 0.296) exceeds threshold 0.200",
+        "equalised-odds violation on age_band = 0.248 (FPR gap 0.060 + FNR gap 0.188) exceeds threshold 0.200"
+      ],
+      "equalised_odds_gap": {
+        "sex": {
+          "max_fpr_gap": 0.025327552431699152,
+          "max_fnr_gap": 0.04298708920187788,
+          "equalised_odds_violation": 0.06831464163357703
+        },
+        "race_ethnicity": {
+          "max_fpr_gap": 0.28792195458862124,
+          "max_fnr_gap": 0.5135989879822898,
+          "equalised_odds_violation": 0.801520942570911
+        },
+        "ses_proxy": {
+          "max_fpr_gap": 0.05584230017787886,
+          "max_fnr_gap": 0.19365971107544144,
+          "equalised_odds_violation": 0.2495020112533203
+        },
+        "region": {
+          "max_fpr_gap": 0.15302144249512672,
+          "max_fnr_gap": 0.1688311688311689,
+          "equalised_odds_violation": 0.3218526113262956
+        },
+        "device_gen": {
+          "max_fpr_gap": 0.10257014528113564,
+          "max_fnr_gap": 0.02865286528652866,
+          "equalised_odds_violation": 0.1312230105676643
+        },
+        "has_depression": {
+          "max_fpr_gap": 0.022467882812352624,
+          "max_fnr_gap": 0.2958937198067634,
+          "equalised_odds_violation": 0.318361602619116
+        },
+        "has_anxiety": {
+          "max_fpr_gap": 0.033070125869509776,
+          "max_fnr_gap": 0.10178183398522378,
+          "equalised_odds_violation": 0.13485195985473356
+        },
+        "age_band": {
+          "max_fpr_gap": 0.060146186806043805,
+          "max_fnr_gap": 0.18829221093372028,
+          "equalised_odds_violation": 0.2484383977397641
+        }
+      }
+    },
+    "climate_vulnerable": {
+      "n_subgroups_audited": 23,
+      "n_subgroups_skipped_small": 0,
+      "ok": false,
+      "violations": [
+        "equalised-odds violation on race_ethnicity = 0.283 (FPR gap 0.033 + FNR gap 0.250) exceeds threshold 0.200",
+        "equalised-odds violation on has_anxiety = 0.227 (FPR gap 0.039 + FNR gap 0.188) exceeds threshold 0.200",
+        "equalised-odds violation on age_band = 0.268 (FPR gap 0.056 + FNR gap 0.212) exceeds threshold 0.200"
+      ],
+      "equalised_odds_gap": {
+        "sex": {
+          "max_fpr_gap": 0.0005959580798672037,
+          "max_fnr_gap": 0.03766578249336869,
+          "equalised_odds_violation": 0.03826174057323589
+        },
+        "race_ethnicity": {
+          "max_fpr_gap": 0.03268182895048566,
+          "max_fnr_gap": 0.25,
+          "equalised_odds_violation": 0.28268182895048566
+        },
+        "ses_proxy": {
+          "max_fpr_gap": 0.006251993620414675,
+          "max_fnr_gap": 0.057142857142857134,
+          "equalised_odds_violation": 0.06339485076327181
+        },
+        "region": {
+          "max_fpr_gap": 0.03203296338140493,
+          "max_fnr_gap": 0.11061552185548615,
+          "equalised_odds_violation": 0.14264848523689108
+        },
+        "device_gen": {
+          "max_fpr_gap": 0.0009859582213747053,
+          "max_fnr_gap": 0.11206896551724138,
+          "equalised_odds_violation": 0.11305492373861609
+        },
+        "has_depression": {
+          "max_fpr_gap": 0.002951145395044416,
+          "max_fnr_gap": 0.1827956989247312,
+          "equalised_odds_violation": 0.18574684431977562
+        },
+        "has_anxiety": {
+          "max_fpr_gap": 0.03896588047111045,
+          "max_fnr_gap": 0.18827620466964728,
+          "equalised_odds_violation": 0.22724208514075772
+        },
+        "age_band": {
+          "max_fpr_gap": 0.05590430201931519,
+          "max_fnr_gap": 0.21212121212121213,
+          "equalised_odds_violation": 0.26802551414052733
+        }
+      }
+    }
+  }
+}
