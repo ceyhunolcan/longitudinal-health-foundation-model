@@ -163,7 +163,7 @@ isolates climate-and-everything-else variation between cohorts.
 ### Interpretability
 
 For every held-out test window we compute integrated gradients
-(Sundararajan et al. 2017)<<TODO: cite>> over the encoder input
+[@sundararajan2017axiomatic] over the encoder input
 with a zero baseline, then aggregate the per-step attributions into
 per-feature scores. Figure 2 (notebook
 `notebooks/00_quickstart.ipynb` cell 11) shows the per-feature

@@ -3,16 +3,18 @@
 ### Cohort and protocol
 
 We applied the LHFM pipeline end-to-end to the LifeSnaps cohort
-(Yfantidou et al. 2022)<<TODO: insert ref number>>, using the public
+[@yfantidou2022lifesnaps], using the public
 "RAIS" release distributed on Kaggle and Zenodo. After applying the
 project's standard minimum-days filter (64 days observed per
 participant), 71 participants and 7,410 participant-days were retained,
 spanning April 2021 through January 2022, with a median of 88 days per
 participant (range 64–244). The cohort distribution by reported sex was
 M = 41, F = 26, missing = 4. Age was stored as range strings in the
-public release and is reported by the LifeSnaps authors as concentrated
-in the under-30 band; we parsed the strings to lower-bound integers
-following the convention used elsewhere in the LifeSnaps literature.<<TODO: cite>>
+public release (e.g. ``<30``, ``30-40``); we parsed each range to its
+lower-bound integer. In the RAIS distribution we accessed, every
+participant fell into the lowest band (``<30``), so the parsed age
+column carries no within-cohort variance and is not informative for
+fairness stratification on this cohort.
 
 Participants were split at the participant level into 49 training,
 11 validation, and 11 test sets (a 70/15/15 split, applied to the count

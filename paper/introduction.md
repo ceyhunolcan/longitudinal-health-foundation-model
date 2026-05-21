@@ -15,10 +15,10 @@ released the GLOBEM cohort spanning four years and multiple
 institutions, with passive-sensing features predictive of depression
 and anxiety symptoms; and several large industry efforts in 2024 and
 2025 have reported foundation-model-scale pretraining on heart-rate
-and wearable time series.<<TODO: cite Apple, Google PHM, Wu et al.>>
+and wearable time series [@narayanswamy2025lsm; @abbaspourazad2023biosignals].
 At the same time, climate exposure — heat, humidity, and air quality —
 is increasingly recognised as a measurable driver of cardiovascular
-and affective signals,<<TODO: cite Doerr 2018; Burke 2018>> opening
+and affective signals [@li2023temperaturehrv; @burke2018higher], opening
 the possibility of integrated behavioural-and-environmental health
 monitoring at scale.
 
@@ -29,7 +29,7 @@ heterogeneous and largely cohort-specific: feature pipelines built
 for LifeSnaps do not run on GLOBEM and vice versa, which prevents
 the kind of cross-cohort replication that the broader
 machine-learning-for-health community now expects as a minimum bar
-for credibility.<<TODO: cite the Saeed/Goldstein call-to-arms>>
+for credibility [@mcdermott2021reproducibility; @wiens2019no].
 **Second**, where foundation-model-scale methods have been published,
 code and weights are frequently withheld, evaluation protocols are
 under-specified, and uncertainty intervals are reported at the

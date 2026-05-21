@@ -1,7 +1,7 @@
 ## Results: GLOBEM cohort
 
 > **Status.** This section is scaffolded against the GLOBEM cohort
-> (Xu et al. 2022, NeurIPS Datasets and Benchmarks track)<<TODO: ref>>
+> [@xu2022globem]
 > distributed via PhysioNet under credentialed access. Numbers and
 > figures will be filled in once credentialed download is complete and
 > the LHFM pipeline has been re-run on this cohort. The prose below
